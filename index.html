@@ -1,0 +1,38 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recipe Collector</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .prompt { width: 80%; padding: 10px; }
+        .message { color: green; display: none; }
+    </style>
+</head>
+<body>
+    <h1>Recipe Collector</h1>
+    <input type="text" id="urlInput" class="prompt" placeholder="Enter recipe URL">
+    <button onclick="addRecipe()">Add</button>
+    <div id="message" class="message">New recipe added!</div>
+    <a href="/recipes.html">View Recipes</a>
+
+    <script>
+        async function addRecipe() {
+            const url = document.getElementById('urlInput').value;
+            if (url) {
+                const response = await fetch('/api/addRecipe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+                if (response.ok) {
+                    document.getElementById('message').style.display = 'block';
+                    setTimeout(() => document.getElementById('message').style.display = 'none', 2000);
+                    document.getElementById('urlInput').value = '';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
