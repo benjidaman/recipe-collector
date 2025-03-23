@@ -1,8 +1,8 @@
 const { app } = require('@azure/functions');
 const { CosmosClient } = require('@azure/cosmos');
 
-app.http('addRecipe', {
-    methods: ['POST', 'OPTIONS'], // Add OPTIONS for CORS preflight
+app.http('addIngredients', {
+    methods: ['POST', 'OPTIONS'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
         // Handle CORS preflight request
@@ -26,12 +26,12 @@ app.http('addRecipe', {
         try {
             // Parse the request body
             const body = await request.json();
-            const { url } = body;
+            const { id, ingredients } = body;
 
-            if (!url) {
+            if (!id || !ingredients || !Array.isArray(ingredients)) {
                 return {
                     status: 400,
-                    body: 'URL is required',
+                    body: 'Recipe ID and ingredients array are required',
                     headers: {
                         'Access-Control-Allow-Origin': corsOrigin
                     }
@@ -45,19 +45,28 @@ app.http('addRecipe', {
             const database = client.database('RecipesDB');
             const container = database.container('Recipes');
 
-            // Create a new recipe
-            const newRecipe = {
-                id: Date.now().toString(), // Use timestamp as ID
-                url: url,
-                name: url.split('/').pop().replace(/-/g, ' '), // Extract name from URL
-                ingredients: []
-            };
+            // Fetch the existing recipe
+            const { resource: recipe } = await container.item(id, id).read();
 
-            await container.items.create(newRecipe);
+            if (!recipe) {
+                return {
+                    status: 404,
+                    body: 'Recipe not found',
+                    headers: {
+                        'Access-Control-Allow-Origin': corsOrigin
+                    }
+                };
+            }
+
+            // Update the ingredients
+            recipe.ingredients = ingredients;
+
+            // Save the updated recipe
+            await container.item(id, id).replace(recipe);
 
             return {
                 status: 200,
-                body: 'Recipe added successfully',
+                body: 'Ingredients added successfully',
                 headers: {
                     'Access-Control-Allow-Origin': corsOrigin
                 }
@@ -65,7 +74,7 @@ app.http('addRecipe', {
         } catch (error) {
             return {
                 status: 500,
-                body: `Error adding recipe: ${error.message}`,
+                body: `Error adding ingredients: ${error.message}`,
                 headers: {
                     'Access-Control-Allow-Origin': corsOrigin
                 }

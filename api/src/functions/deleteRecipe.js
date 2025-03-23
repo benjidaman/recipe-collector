@@ -1,8 +1,8 @@
 const { app } = require('@azure/functions');
 const { CosmosClient } = require('@azure/cosmos');
 
-app.http('addRecipe', {
-    methods: ['POST', 'OPTIONS'], // Add OPTIONS for CORS preflight
+app.http('deleteRecipe', {
+    methods: ['POST', 'OPTIONS'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
         // Handle CORS preflight request
@@ -26,12 +26,12 @@ app.http('addRecipe', {
         try {
             // Parse the request body
             const body = await request.json();
-            const { url } = body;
+            const { id } = body;
 
-            if (!url) {
+            if (!id) {
                 return {
                     status: 400,
-                    body: 'URL is required',
+                    body: 'Recipe ID is required',
                     headers: {
                         'Access-Control-Allow-Origin': corsOrigin
                     }
@@ -45,19 +45,12 @@ app.http('addRecipe', {
             const database = client.database('RecipesDB');
             const container = database.container('Recipes');
 
-            // Create a new recipe
-            const newRecipe = {
-                id: Date.now().toString(), // Use timestamp as ID
-                url: url,
-                name: url.split('/').pop().replace(/-/g, ' '), // Extract name from URL
-                ingredients: []
-            };
-
-            await container.items.create(newRecipe);
+            // Delete the recipe by ID
+            await container.item(id, id).delete();
 
             return {
                 status: 200,
-                body: 'Recipe added successfully',
+                body: 'Recipe deleted successfully',
                 headers: {
                     'Access-Control-Allow-Origin': corsOrigin
                 }
@@ -65,7 +58,7 @@ app.http('addRecipe', {
         } catch (error) {
             return {
                 status: 500,
-                body: `Error adding recipe: ${error.message}`,
+                body: `Error deleting recipe: ${error.message}`,
                 headers: {
                     'Access-Control-Allow-Origin': corsOrigin
                 }
