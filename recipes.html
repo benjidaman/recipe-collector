@@ -1,40 +1,153 @@
-<!-- recipes.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Recipes</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .checkbox { margin-right: 10px; }
+        .recipe { margin-bottom: 20px; }
+        .error { color: red; }
+        .ingredient-form { margin-top: 10px; }
+        .filters { margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <h1>Recipes</h1>
-    <div>
-        <label><input type="checkbox" class="checkbox" value="chicken" onchange="filterRecipes()">Chicken</label>
-        <label><input type="checkbox" class="checkbox" value="beef" onchange="filterRecipes()">Beef</label>
-        <label><input type="checkbox" class="checkbox" value="vegetarian" onchange="filterRecipes()">Vegetarian</label>
+    <div class="filters">
+        <label><input type="checkbox" id="filter-chicken"> Chicken</label>
+        <label><input type="checkbox" id="filter-beef"> Beef</label>
+        <label><input type="checkbox" id="filter-vegetarian"> Vegetarian</label>
     </div>
-    <ul id="recipeList"></ul>
-    <a href="/">Back to Add Recipe</a>
+    <div id="recipes"></div>
+    <p id="error" class="error" style="display: none;"></p>
+    <a href="/index.html">Back to Add Recipe</a>
 
     <script>
-        let recipes = [];
-        
+        const API_BASE_URL = ''; // For deployed app (relative URL)
+        let allRecipes = []; // Store all recipes for filtering
+
         async function loadRecipes() {
-            const response = await fetch('/api/getRecipes');
-            recipes = await response.json();
-            filterRecipes();
+            const recipesDiv = document.getElementById('recipes');
+            const errorElement = document.getElementById('error');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/getRecipes`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    // Check if the response is JSON
+                    const contentType = response.headers.get('Content-Type');
+                    if (contentType && contentType.includes('application/json')) {
+                        allRecipes = await response.json();
+                        displayRecipes();
+                    } else {
+                        throw new Error('Response is not JSON');
+                    }
+                } else {
+                    const errorText = await response.text();
+                    errorElement.textContent = `Error fetching recipes: ${response.status} - ${errorText}`;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
         }
 
-        function filterRecipes() {
-            const filters = Array.from(document.querySelectorAll('.checkbox:checked')).map(cb => cb.value);
-            const filtered = filters.length === 0 ? recipes : recipes.filter(r => 
-                filters.some(f => r.ingredients.includes(f)));
-            const list = document.getElementById('recipeList');
-            list.innerHTML = filtered.map(r => `<li><a href="${r.url}">${r.name}</a></li>`).join('');
+        function displayRecipes() {
+            const recipesDiv = document.getElementById('recipes');
+            const filterChicken = document.getElementById('filter-chicken').checked;
+            const filterBeef = document.getElementById('filter-beef').checked;
+            const filterVegetarian = document.getElementById('filter-vegetarian').checked;
+
+            let filteredRecipes = allRecipes;
+
+            if (filterChicken || filterBeef || filterVegetarian) {
+                filteredRecipes = allRecipes.filter(recipe => {
+                    const name = recipe.name.toLowerCase();
+                    return (filterChicken && name.includes('chicken')) ||
+                           (filterBeef && name.includes('beef')) ||
+                           (filterVegetarian && name.includes('vegetarian'));
+                });
+            }
+
+            if (filteredRecipes.length === 0) {
+                recipesDiv.innerHTML = '<p>No recipes found.</p>';
+            } else {
+                recipesDiv.innerHTML = filteredRecipes.map(recipe => `
+                    <div class="recipe">
+                        <h3>${recipe.name}</h3>
+                        <p><a href="${recipe.url}" target="_blank">${recipe.url}</a></p>
+                        <p>Ingredients: ${recipe.ingredients.length > 0 ? recipe.ingredients.join(', ') : 'None'}</p>
+                        <button onclick="deleteRecipe('${recipe.id}')">Delete</button>
+                        <div class="ingredient-form">
+                            <input type="text" id="ingredients-${recipe.id}" placeholder="Enter ingredients (comma-separated)">
+                            <button onclick="addIngredients('${recipe.id}')">Add Ingredients</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
+
+        async function deleteRecipe(recipeId) {
+            const errorElement = document.getElementById('error');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/deleteRecipe`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: recipeId })
+                });
+
+                if (response.ok) {
+                    loadRecipes();
+                } else {
+                    errorElement.textContent = `Error deleting recipe: ${response.status} - ${await response.text()}`;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        async function addIngredients(recipeId) {
+            const errorElement = document.getElementById('error');
+            const ingredientsInput = document.getElementById(`ingredients-${recipeId}`).value;
+            const ingredients = ingredientsInput.split(',').map(item => item.trim()).filter(item => item);
+
+            if (ingredients.length === 0) {
+                errorElement.textContent = 'Please enter at least one ingredient.';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/addIngredients`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: recipeId, ingredients })
+                });
+
+                if (response.ok) {
+                    loadRecipes();
+                } else {
+                    errorElement.textContent = `Error adding ingredients: ${response.status} - ${await response.text()}`;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        // Add event listeners for filter checkboxes
+        document.getElementById('filter-chicken').addEventListener('change', displayRecipes);
+        document.getElementById('filter-beef').addEventListener('change', displayRecipes);
+        document.getElementById('filter-vegetarian').addEventListener('change', displayRecipes);
 
         window.onload = loadRecipes;
     </script>
