@@ -1,17 +1,8 @@
 {
-  "name": "",
+  "name": "recipe-collector-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/functions/*.js",
-  "scripts": {
-    "start": "func start",
-    "test": "echo \"No tests yet...\""
-  },
   "dependencies": {
-    "@azure/cosmos": "^4.3.0",
-    "@azure/functions": "^4.7.0"
-  },
-  "devDependencies": {
-    "azure-functions-core-tools": "^4.x"
+    "@azure/functions": "^4.0.0",
+    "@azure/cosmos": "^4.0.0"
   }
 }
