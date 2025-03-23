@@ -6,6 +6,9 @@
         "isEnabled": true,
         "excludedTypes": "Request"
       }
+    },
+    "logLevel": {
+      "default": "None"
     }
   },
   "extensionBundle": {
@@ -16,9 +19,5 @@
     "http": {
       "routePrefix": "api"
     }
-  },
-  "cors": {
-    "allowedOrigins": ["http://127.0.0.1:8080", "http://localhost:8080"],
-    "allowCredentials": true
   }
 }
