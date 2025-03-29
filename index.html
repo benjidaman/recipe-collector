@@ -9,7 +9,9 @@
         body { font-family: Arial, sans-serif; margin: 20px; }
         .prompt { width: 64%; padding: 10px; margin-bottom: 10px; } /* 80% of original 80% width = 64% */
         .comment-box { width: 64%; height: 200px; padding: 10px; margin-bottom: 10px; resize: vertical; } /* Same width, 10x taller */
-        .add-button { padding: 30px 60px; font-size: 24px; } /* 3x bigger button */
+        .add-button { padding: 30px 60px; font-size: 24px; margin-bottom: 10px; } /* 3x bigger button */
+        .view-recipes-button { padding: 10px 20px; font-size: 16px; text-decoration: none; color: white; background-color: #4CAF50; border: none; border-radius: 5px; cursor: pointer; }
+        .view-recipes-button:hover { background-color: #45a049; }
         .message { display: none; }
         .success { color: green; }
         .error { color: red; }
@@ -21,8 +23,9 @@
     <input type="text" id="urlInput" class="prompt" placeholder="Enter recipe URL" required>
     <textarea id="commentInput" class="comment-box" placeholder="Enter notes about the meal"></textarea>
     <button class="add-button" onclick="addRecipe()">Add</button>
+    <br>
+    <a href="/recipes.html" class="view-recipes-button">View Recipes</a>
     <div id="message" class="message"></div>
-    <a href="/recipes.html">View Recipes</a>
 
     <script>
         // Set the API base URL (change this for local vs. deployed)
