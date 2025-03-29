@@ -19,6 +19,13 @@
         .message { display: none; }
         .success { color: green; }
         .error { color: red; }
+        /* Style placeholder text to be pink */
+        .prompt::placeholder, .comment-box::placeholder { color: #ff69b4; opacity: 1; } /* Pink placeholder text */
+        /* For older browsers */
+        .prompt::-webkit-input-placeholder, .comment-box::-webkit-input-placeholder { color: #ff69b4; }
+        .prompt:-moz-placeholder, .comment-box:-moz-placeholder { color: #ff69b4; opacity: 1; }
+        .prompt::-moz-placeholder, .comment-box::-moz-placeholder { color: #ff69b4; opacity: 1; }
+        .prompt:-ms-input-placeholder, .comment-box:-ms-input-placeholder { color: #ff69b4; }
     </style>
 </head>
 <body>
