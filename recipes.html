@@ -1,13 +1,16 @@
+<!-- recipes.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Recipes</title>
+    <title>Recipes - Recipe Collector</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .recipe { margin-bottom: 20px; }
+        .recipe { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
         .error { color: red; }
+        .success { color: green; }
+        .message { display: none; }
         .ingredient-form { margin-top: 10px; }
         .filters { margin-bottom: 20px; }
     </style>
@@ -38,7 +41,6 @@
                 });
 
                 if (response.ok) {
-                    // Check if the response is JSON
                     const contentType = response.headers.get('Content-Type');
                     if (contentType && contentType.includes('application/json')) {
                         allRecipes = await response.json();
@@ -79,68 +81,98 @@
             } else {
                 recipesDiv.innerHTML = filteredRecipes.map(recipe => `
                     <div class="recipe">
-                        <h3>${recipe.name}</h3>
+                        <h3>${recipe.name} (ID: ${recipe.id})</h3>
                         <p><a href="${recipe.url}" target="_blank">${recipe.url}</a></p>
                         <p>Ingredients: ${recipe.ingredients.length > 0 ? recipe.ingredients.join(', ') : 'None'}</p>
-                        <button onclick="deleteRecipe('${recipe.id}')">Delete</button>
                         <div class="ingredient-form">
                             <input type="text" id="ingredients-${recipe.id}" placeholder="Enter ingredients (comma-separated)">
                             <button onclick="addIngredients('${recipe.id}')">Add Ingredients</button>
                         </div>
+                        <button onclick="deleteRecipe('${recipe.id}')">Delete</button>
+                        <div id="message-${recipe.id}" class="message"></div>
                     </div>
                 `).join('');
             }
         }
 
         async function deleteRecipe(recipeId) {
-            const errorElement = document.getElementById('error');
+            const messageElement = document.getElementById(`message-${recipeId}`);
+
+            // Clear previous message
+            messageElement.textContent = '';
+            messageElement.style.display = 'none';
+            messageElement.classList.remove('success', 'error');
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/deleteRecipe`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: recipeId })
+                const response = await fetch(`${API_BASE_URL}/api/deleteRecipe/${recipeId}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
                 if (response.ok) {
+                    messageElement.textContent = 'Recipe deleted successfully!';
+                    messageElement.classList.add('success');
+                    messageElement.style.display = 'block';
+                    setTimeout(() => {
+                        messageElement.style.display = 'none';
+                    }, 2000);
                     loadRecipes();
                 } else {
-                    errorElement.textContent = `Error deleting recipe: ${response.status} - ${await response.text()}`;
-                    errorElement.style.display = 'block';
+                    const errorText = await response.text();
+                    messageElement.textContent = `Error deleting recipe: ${response.status} - ${errorText}`;
+                    messageElement.classList.add('error');
+                    messageElement.style.display = 'block';
                 }
             } catch (error) {
-                errorElement.textContent = `Error: ${error.message}`;
-                errorElement.style.display = 'block';
+                messageElement.textContent = `Error: ${error.message}`;
+                messageElement.classList.add('error');
+                messageElement.style.display = 'block';
             }
         }
 
         async function addIngredients(recipeId) {
-            const errorElement = document.getElementById('error');
             const ingredientsInput = document.getElementById(`ingredients-${recipeId}`).value;
+            const messageElement = document.getElementById(`message-${recipeId}`);
             const ingredients = ingredientsInput.split(',').map(item => item.trim()).filter(item => item);
 
+            // Clear previous message
+            messageElement.textContent = '';
+            messageElement.style.display = 'none';
+            messageElement.classList.remove('success', 'error');
+
             if (ingredients.length === 0) {
-                errorElement.textContent = 'Please enter at least one ingredient.';
-                errorElement.style.display = 'block';
+                messageElement.textContent = 'Please enter at least one ingredient.';
+                messageElement.classList.add('error');
+                messageElement.style.display = 'block';
                 return;
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/addIngredients`, {
-                    method: 'POST',
+                const response = await fetch(`${API_BASE_URL}/api/addIngredients/${recipeId}`, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: recipeId, ingredients })
+                    body: JSON.stringify({ ingredients })
                 });
 
                 if (response.ok) {
+                    messageElement.textContent = 'Ingredients added successfully!';
+                    messageElement.classList.add('success');
+                    messageElement.style.display = 'block';
+                    setTimeout(() => {
+                        messageElement.style.display = 'none';
+                    }, 2000);
+                    document.getElementById(`ingredients-${recipeId}`).value = '';
                     loadRecipes();
                 } else {
-                    errorElement.textContent = `Error adding ingredients: ${response.status} - ${await response.text()}`;
-                    errorElement.style.display = 'block';
+                    const errorText = await response.text();
+                    messageElement.textContent = `Error adding ingredients: ${response.status} - ${errorText}`;
+                    messageElement.classList.add('error');
+                    messageElement.style.display = 'block';
                 }
             } catch (error) {
-                errorElement.textContent = `Error: ${error.message}`;
-                errorElement.style.display = 'block';
+                messageElement.textContent = `Error: ${error.message}`;
+                messageElement.classList.add('error');
+                messageElement.style.display = 'block';
             }
         }
 
@@ -151,5 +183,6 @@
 
         window.onload = loadRecipes;
     </script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9281cb6a4be2ed7f',t:'MTc0MzI3Njc2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
