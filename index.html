@@ -7,15 +7,16 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
+        .nav-bar { margin-bottom: 20px; }
+        .nav-button { padding: 10px 20px; font-size: 16px; text-decoration: none; color: white; background-color: #800080; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; display: inline-block; } /* Purple button, inline for multiple buttons */
+        .nav-button:hover { background-color: #4b0082; } /* Darker purple on hover */
         .header { display: flex; align-items: center; margin-bottom: 20px; }
         .logo { width: 96px; height: 96px; margin-right: 10px; } /* 3x larger than original 32px */
-        .logo-text { font-size: 54px; font-weight: bold; color: #ff69b4; } /* 3x larger than original 18px, now pink */
+        .logo-text { font-size: 54px; font-weight: bold; color: #ff69b4; } /* 3x larger than original 18px, pink */
         .prompt { width: 64%; padding: 10px; margin-bottom: 10px; display: block; } /* Ensure block display */
         .comment-box { width: 64%; height: 200px; padding: 10px; margin-bottom: 10px; resize: vertical; display: block; } /* Ensure block display */
         .add-button { padding: 30px 60px; font-size: 24px; margin-bottom: 10px; display: block; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; } /* Pink Add button */
         .add-button:hover { background-color: #ff1493; } /* Darker pink on hover */
-        .view-recipes-button { padding: 10px 20px; font-size: 16px; text-decoration: none; color: white; background-color: #800080; border: none; border-radius: 5px; cursor: pointer; } /* Purple View Recipes button */
-        .view-recipes-button:hover { background-color: #4b0082; } /* Darker purple on hover */
         .message { display: none; }
         .success { color: green; }
         .error { color: red; }
@@ -29,6 +30,10 @@
     </style>
 </head>
 <body>
+    <div class="nav-bar">
+        <a href="/recipes.html" class="nav-button">View Recipes</a>
+        <!-- Add more buttons here in the future, e.g., <a href="/other-page.html" class="nav-button">Other Page</a> -->
+    </div>
     <div class="header">
         <img src="/cats-kitchen-logo.png" alt="Cat's Kitchen Logo" class="logo">
         <span class="logo-text">Cat's Kitchen</span>
@@ -37,8 +42,6 @@
     <input type="text" id="urlInput" class="prompt" placeholder="Enter recipe URL" required>
     <textarea id="commentInput" class="comment-box" placeholder="Enter notes about the meal"></textarea>
     <button class="add-button" onclick="addRecipe()">Add</button>
-    <br>
-    <a href="/recipes.html" class="view-recipes-button">View Recipes</a>
     <div id="message" class="message"></div>
 
     <script>
