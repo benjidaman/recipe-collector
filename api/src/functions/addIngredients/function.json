@@ -4,14 +4,14 @@
       "authLevel": "anonymous",
       "type": "httpTrigger",
       "direction": "in",
-      "name": "request",
-      "methods": ["post", "options"],
-      "route": "addIngredients"
+      "name": "req",
+      "methods": ["put", "options"],
+      "route": "addIngredients/{id}"
     },
     {
       "type": "http",
       "direction": "out",
-      "name": "$return"
+      "name": "res"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "name": "recipe-collector-api",
   "version": "1.0.0",
   "dependencies": {
-    "@azure/functions": "^4.0.0",
+    "@azure/functions": "4.0.0",
     "@azure/cosmos": "^4.0.0"
   }
 }

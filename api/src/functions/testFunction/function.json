@@ -5,8 +5,9 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get", "options"],
-      "route": "getRecipes"
+      "methods": [
+        "get"
+      ]
     },
     {
       "type": "http",
