@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Recipe Collector</title>
+    <title>Cat's Kitchen</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .header { display: flex; align-items: center; margin-bottom: 20px; }
-        .logo { width: 32px; height: 32px; margin-right: 10px; } /* Small size like Super Grok */
-        .logo-text { font-size: 18px; font-weight: bold; }
+        .logo { width: 96px; height: 96px; margin-right: 10px; } /* 3x larger than original 32px */
+        .logo-text { font-size: 54px; font-weight: bold; } /* 3x larger than original 18px */
         .prompt { width: 64%; padding: 10px; margin-bottom: 10px; } /* 80% of original 80% width = 64% */
         .comment-box { width: 64%; height: 200px; padding: 10px; margin-bottom: 10px; resize: vertical; } /* Same width, 10x taller */
         .add-button { padding: 30px 60px; font-size: 24px; margin-bottom: 10px; } /* 3x bigger button */
@@ -25,7 +25,6 @@
         <img src="/cats-kitchen-logo.png" alt="Cat's Kitchen Logo" class="logo">
         <span class="logo-text">Cat's Kitchen</span>
     </div>
-    <h1>Recipe Collector</h1>
     <input type="text" id="nameInput" class="prompt" placeholder="Enter recipe name (optional)">
     <input type="text" id="urlInput" class="prompt" placeholder="Enter recipe URL" required>
     <textarea id="commentInput" class="comment-box" placeholder="Enter notes about the meal"></textarea>
