@@ -26,14 +26,24 @@
         .recipe-description { color: #666; margin-top: 5px; }
         .recipe-description.short { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
         .recipe-actions { display: flex; gap: 10px; }
-        .action-button { padding: 5px 10px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; }
-        .edit-button { background-color: #0366d6; color: white; }
-        .edit-button:hover { background-color: #024ea4; }
-        .delete-button { background-color: #d73a49; color: white; }
-        .delete-button:hover { background-color: #b32d39; }
+        .action-button { padding: 5px 10px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; color: white; }
+        .edit-button { background-color: #ff69b4; } /* Pink Edit button */
+        .edit-button:hover { background-color: #ff1493; } /* Darker pink on hover */
+        .delete-button { background-color: #800080; } /* Purple Delete button */
+        .delete-button:hover { background-color: #4b0082; } /* Darker purple on hover */
         .message { display: none; }
         .success { color: green; }
         .error { color: red; }
+        /* Modal styles */
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover, .close:focus { color: black; text-decoration: none; }
+        .modal-form { display: flex; flex-direction: column; gap: 10px; }
+        .modal-form label { font-weight: bold; }
+        .modal-form input, .modal-form textarea { padding: 5px; width: 100%; box-sizing: border-box; }
+        .modal-form button { padding: 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .modal-form button:hover { background-color: #ff1493; }
     </style>
 </head>
 <body>
@@ -66,9 +76,29 @@
     <div id="recipes" class="recipe-table"></div>
     <p id="error" class="error" style="display: none;"></p>
 
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <h2>Edit Recipe</h2>
+            <form id="editForm" class="modal-form">
+                <input type="hidden" id="editRecipeId">
+                <label for="editName">Name:</label>
+                <input type="text" id="editName" required>
+                <label for="editUrl">URL:</label>
+                <input type="text" id="editUrl" required>
+                <label for="editComment">Comment:</label>
+                <textarea id="editComment"></textarea>
+                <label for="editIngredients">Ingredients (comma-separated):</label>
+                <input type="text" id="editIngredients">
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
     <script>
-        const API_BASE_URL = ''; // For deployed app (relative URL)
-        let allRecipes = []; // Store all recipes for filtering and sorting
+        const API_BASE_URL = '';
+        let allRecipes = [];
 
         async function loadRecipes() {
             const recipesDiv = document.getElementById('recipes');
@@ -104,9 +134,9 @@
         function sortRecipes() {
             const sortBy = document.getElementById('filter-sort').value;
             if (sortBy === 'date-desc') {
-                allRecipes.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+                allRecipes.sort((a, b) => new Date(b.dateAdded || b.id) - new Date(a.dateAdded || a.id));
             } else if (sortBy === 'date-asc') {
-                allRecipes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+                allRecipes.sort((a, b) => new Date(a.dateAdded || a.id) - new Date(b.dateAdded || a.id));
             } else if (sortBy === 'name-asc') {
                 allRecipes.sort((a, b) => a.name.localeCompare(b.name));
             } else if (sortBy === 'name-desc') {
@@ -141,10 +171,10 @@
                             <div class="recipe-name">
                                 <a href="${recipe.url}" target="_blank">${recipe.name}</a>
                             </div>
-                            <div class="recipe-description ${recipe.comment.length > 100 ? 'short' : ''}" id="desc-${recipe.id}">
+                            <div class="recipe-description ${recipe.comment && recipe.comment.length > 100 ? 'short' : ''}" id="desc-${recipe.id}">
                                 ${recipe.comment || 'No description available.'}
                             </div>
-                            ${recipe.comment.length > 100 ? `<button onclick="toggleDescription('${recipe.id}')">Show More</button>` : ''}
+                            ${recipe.comment && recipe.comment.length > 100 ? `<button onclick="toggleDescription('${recipe.id}')">Show More</button>` : ''}
                         </div>
                         <div class="recipe-actions">
                             <button class="action-button edit-button" onclick="editRecipe('${recipe.id}')">Edit</button>
@@ -171,7 +201,6 @@
         async function deleteRecipe(recipeId) {
             const messageElement = document.getElementById(`message-${recipeId}`);
 
-            // Clear previous message
             messageElement.textContent = '';
             messageElement.style.display = 'none';
             messageElement.classList.remove('success', 'error');
@@ -204,10 +233,66 @@
         }
 
         function editRecipe(recipeId) {
-            // Placeholder for edit functionality
-            alert(`Edit functionality for recipe ID ${recipeId} is not yet implemented.`);
-            // In the future, this could open a modal or redirect to an edit page with the recipe details pre-filled.
+            const recipe = allRecipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+
+            document.getElementById('editRecipeId').value = recipe.id;
+            document.getElementById('editName').value = recipe.name;
+            document.getElementById('editUrl').value = recipe.url;
+            document.getElementById('editComment').value = recipe.comment || '';
+            document.getElementById('editIngredients').value = recipe.ingredients ? recipe.ingredients.join(', ') : '';
+
+            document.getElementById('editModal').style.display = 'block';
         }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const recipeId = document.getElementById('editRecipeId').value;
+            const name = document.getElementById('editName').value;
+            const url = document.getElementById('editUrl').value;
+            const comment = document.getElementById('editComment').value;
+            const ingredientsInput = document.getElementById('editIngredients').value;
+            const ingredients = ingredientsInput ? ingredientsInput.split(',').map(item => item.trim()).filter(item => item) : [];
+
+            const updatedRecipe = {
+                id: recipeId,
+                name,
+                url,
+                comment,
+                ingredients,
+                dateAdded: allRecipes.find(r => r.id === recipeId).dateAdded
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/updateRecipe`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedRecipe)
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    loadRecipes();
+                } else {
+                    const errorText = await response.text();
+                    alert(`Error updating recipe: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
 
         window.onload = loadRecipes;
     </script>
