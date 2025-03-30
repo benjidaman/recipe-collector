@@ -27,14 +27,13 @@
         .recipe-description.short { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
         .recipe-actions { display: flex; gap: 10px; }
         .action-button { padding: 5px 10px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; color: white; }
-        .edit-button { background-color: #ff69b4; } /* Pink Edit button */
-        .edit-button:hover { background-color: #ff1493; } /* Darker pink on hover */
-        .delete-button { background-color: #800080; } /* Purple Delete button */
-        .delete-button:hover { background-color: #4b0082; } /* Darker purple on hover */
+        .edit-button { background-color: #ff69b4; }
+        .edit-button:hover { background-color: #ff1493; }
+        .delete-button { background-color: #800080; }
+        .delete-button:hover { background-color: #4b0082; }
         .message { display: none; }
         .success { color: green; }
         .error { color: red; }
-        /* Modal styles */
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
         .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
@@ -44,6 +43,11 @@
         .modal-form input, .modal-form textarea { padding: 5px; width: 100%; box-sizing: border-box; }
         .modal-form button { padding: 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .modal-form button:hover { background-color: #ff1493; }
+        .modal-form input::placeholder, .modal-form textarea::placeholder { color: #ff69b4; opacity: 1; }
+        .modal-form input::-webkit-input-placeholder, .modal-form textarea::-webkit-input-placeholder { color: #ff69b4; }
+        .modal-form input:-moz-placeholder, .modal-form textarea:-moz-placeholder { color: #ff69b4; opacity: 1; }
+        .modal-form input::-moz-placeholder, .modal-form textarea::-moz-placeholder { color: #ff69b4; opacity: 1; }
+        .modal-form input:-ms-input-placeholder, .modal-form textarea:-ms-input-placeholder { color: #ff69b4; }
     </style>
 </head>
 <body>
@@ -112,13 +116,14 @@
                 });
 
                 if (response.ok) {
-                    const contentType = response.headers.get('Content-Type');
-                    if (contentType && contentType.includes('application/json')) {
-                        allRecipes = await response.json();
+                    try {
+                        const data = await response.json();
+                        allRecipes = data;
                         recipeCountElement.textContent = `Recipes (${allRecipes.length})`;
                         displayRecipes();
-                    } else {
-                        throw new Error('Response is not JSON');
+                    } catch (jsonError) {
+                        const errorText = await response.text();
+                        throw new Error(`Response is not valid JSON: ${errorText}`);
                     }
                 } else {
                     const errorText = await response.text();
