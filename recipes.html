@@ -13,12 +13,27 @@
         .header { display: flex; align-items: center; margin-bottom: 20px; }
         .logo { width: 96px; height: 96px; margin-right: 10px; }
         .logo-text { font-size: 54px; font-weight: bold; color: #ff69b4; }
-        .recipe { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
-        .error { color: red; }
-        .success { color: green; }
-        .message { display: none; }
-        .ingredient-form { margin-top: 10px; }
+        .title-block { margin-bottom: 20px; }
+        .title-block h1 { margin: 0; font-size: 24px; }
         .filters { margin-bottom: 20px; }
+        .filter-select { padding: 5px; margin-right: 10px; }
+        .recipe-table { width: 100%; border-collapse: collapse; }
+        .recipe-row { border-bottom: 1px solid #ddd; padding: 10px 0; display: flex; align-items: center; }
+        .recipe-info { flex: 1; }
+        .recipe-name { font-size: 18px; font-weight: bold; }
+        .recipe-name a { color: #0366d6; text-decoration: none; }
+        .recipe-name a:hover { text-decoration: underline; }
+        .recipe-description { color: #666; margin-top: 5px; }
+        .recipe-description.short { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+        .recipe-actions { display: flex; gap: 10px; }
+        .action-button { padding: 5px 10px; font-size: 14px; cursor: pointer; border: none; border-radius: 5px; }
+        .edit-button { background-color: #0366d6; color: white; }
+        .edit-button:hover { background-color: #024ea4; }
+        .delete-button { background-color: #d73a49; color: white; }
+        .delete-button:hover { background-color: #b32d39; }
+        .message { display: none; }
+        .success { color: green; }
+        .error { color: red; }
     </style>
 </head>
 <body>
@@ -31,22 +46,34 @@
         <img src="/cats-kitchen-logo.png" alt="Cat's Kitchen Logo" class="logo">
         <span class="logo-text">Cat's Kitchen</span>
     </div>
-    <h1>Recipes</h1>
-    <div class="filters">
-        <label><input type="checkbox" id="filter-chicken"> Chicken</label>
-        <label><input type="checkbox" id="filter-beef"> Beef</label>
-        <label><input type="checkbox" id="filter-vegetarian"> Vegetarian</label>
+    <div class="title-block">
+        <h1 id="recipe-count">Recipes</h1>
     </div>
-    <div id="recipes"></div>
+    <div class="filters">
+        <select id="filter-sort" class="filter-select" onchange="sortRecipes()">
+            <option value="date-desc">Sort by Date Added (Newest First)</option>
+            <option value="date-asc">Sort by Date Added (Oldest First)</option>
+            <option value="name-asc">Sort by Name (A-Z)</option>
+            <option value="name-desc">Sort by Name (Z-A)</option>
+        </select>
+        <select id="filter-protein" class="filter-select" onchange="filterRecipes()">
+            <option value="">Filter by Main Protein</option>
+            <option value="chicken">Chicken</option>
+            <option value="beef">Beef</option>
+            <option value="vegetarian">Vegetarian</option>
+        </select>
+    </div>
+    <div id="recipes" class="recipe-table"></div>
     <p id="error" class="error" style="display: none;"></p>
 
     <script>
         const API_BASE_URL = ''; // For deployed app (relative URL)
-        let allRecipes = []; // Store all recipes for filtering
+        let allRecipes = []; // Store all recipes for filtering and sorting
 
         async function loadRecipes() {
             const recipesDiv = document.getElementById('recipes');
             const errorElement = document.getElementById('error');
+            const recipeCountElement = document.getElementById('recipe-count');
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/getRecipes`, {
@@ -58,6 +85,7 @@
                     const contentType = response.headers.get('Content-Type');
                     if (contentType && contentType.includes('application/json')) {
                         allRecipes = await response.json();
+                        recipeCountElement.textContent = `Recipes (${allRecipes.length})`;
                         displayRecipes();
                     } else {
                         throw new Error('Response is not JSON');
@@ -73,39 +101,70 @@
             }
         }
 
-        function displayRecipes() {
-            const recipesDiv = document.getElementById('recipes');
-            const filterChicken = document.getElementById('filter-chicken').checked;
-            const filterBeef = document.getElementById('filter-beef').checked;
-            const filterVegetarian = document.getElementById('filter-vegetarian').checked;
+        function sortRecipes() {
+            const sortBy = document.getElementById('filter-sort').value;
+            if (sortBy === 'date-desc') {
+                allRecipes.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+            } else if (sortBy === 'date-asc') {
+                allRecipes.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+            } else if (sortBy === 'name-asc') {
+                allRecipes.sort((a, b) => a.name.localeCompare(b.name));
+            } else if (sortBy === 'name-desc') {
+                allRecipes.sort((a, b) => b.name.localeCompare(a.name));
+            }
+            displayRecipes();
+        }
 
+        function filterRecipes() {
+            const filterProtein = document.getElementById('filter-protein').value;
             let filteredRecipes = allRecipes;
 
-            if (filterChicken || filterBeef || filterVegetarian) {
+            if (filterProtein) {
                 filteredRecipes = allRecipes.filter(recipe => {
                     const name = recipe.name.toLowerCase();
-                    return (filterChicken && name.includes('chicken')) ||
-                           (filterBeef && name.includes('beef')) ||
-                           (filterVegetarian && name.includes('vegetarian'));
+                    return name.includes(filterProtein.toLowerCase());
                 });
             }
 
-            if (filteredRecipes.length === 0) {
+            displayRecipes(filteredRecipes);
+        }
+
+        function displayRecipes(recipesToDisplay = allRecipes) {
+            const recipesDiv = document.getElementById('recipes');
+
+            if (recipesToDisplay.length === 0) {
                 recipesDiv.innerHTML = '<p>No recipes found.</p>';
             } else {
-                recipesDiv.innerHTML = filteredRecipes.map(recipe => `
-                    <div class="recipe">
-                        <h3>${recipe.name} (ID: ${recipe.id})</h3>
-                        <p><a href="${recipe.url}" target="_blank">${recipe.url}</a></p>
-                        <p>Ingredients: ${recipe.ingredients.length > 0 ? recipe.ingredients.join(', ') : 'None'}</p>
-                        <div class="ingredient-form">
-                            <input type="text" id="ingredients-${recipe.id}" placeholder="Enter ingredients (comma-separated)">
-                            <button onclick="addIngredients('${recipe.id}')">Add Ingredients</button>
+                recipesDiv.innerHTML = recipesToDisplay.map(recipe => `
+                    <div class="recipe-row">
+                        <div class="recipe-info">
+                            <div class="recipe-name">
+                                <a href="${recipe.url}" target="_blank">${recipe.name}</a>
+                            </div>
+                            <div class="recipe-description ${recipe.comment.length > 100 ? 'short' : ''}" id="desc-${recipe.id}">
+                                ${recipe.comment || 'No description available.'}
+                            </div>
+                            ${recipe.comment.length > 100 ? `<button onclick="toggleDescription('${recipe.id}')">Show More</button>` : ''}
                         </div>
-                        <button onclick="deleteRecipe('${recipe.id}')">Delete</button>
+                        <div class="recipe-actions">
+                            <button class="action-button edit-button" onclick="editRecipe('${recipe.id}')">Edit</button>
+                            <button class="action-button delete-button" onclick="deleteRecipe('${recipe.id}')">Delete</button>
+                        </div>
                         <div id="message-${recipe.id}" class="message"></div>
                     </div>
                 `).join('');
+            }
+        }
+
+        function toggleDescription(recipeId) {
+            const descElement = document.getElementById(`desc-${recipeId}`);
+            const button = descElement.nextElementSibling;
+            if (descElement.classList.contains('short')) {
+                descElement.classList.remove('short');
+                button.textContent = 'Show Less';
+            } else {
+                descElement.classList.add('short');
+                button.textContent = 'Show More';
             }
         }
 
@@ -144,56 +203,11 @@
             }
         }
 
-        async function addIngredients(recipeId) {
-            const ingredientsInput = document.getElementById(`ingredients-${recipeId}`).value;
-            const messageElement = document.getElementById(`message-${recipeId}`);
-            const ingredients = ingredientsInput.split(',').map(item => item.trim()).filter(item => item);
-
-            // Clear previous message
-            messageElement.textContent = '';
-            messageElement.style.display = 'none';
-            messageElement.classList.remove('success', 'error');
-
-            if (ingredients.length === 0) {
-                messageElement.textContent = 'Please enter at least one ingredient.';
-                messageElement.classList.add('error');
-                messageElement.style.display = 'block';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/addIngredients/${recipeId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ingredients })
-                });
-
-                if (response.ok) {
-                    messageElement.textContent = 'Ingredients added successfully!';
-                    messageElement.classList.add('success');
-                    messageElement.style.display = 'block';
-                    setTimeout(() => {
-                        messageElement.style.display = 'none';
-                    }, 2000);
-                    document.getElementById(`ingredients-${recipeId}`).value = '';
-                    loadRecipes();
-                } else {
-                    const errorText = await response.text();
-                    messageElement.textContent = `Error adding ingredients: ${response.status} - ${errorText}`;
-                    messageElement.classList.add('error');
-                    messageElement.style.display = 'block';
-                }
-            } catch (error) {
-                messageElement.textContent = `Error: ${error.message}`;
-                messageElement.classList.add('error');
-                messageElement.style.display = 'block';
-            }
+        function editRecipe(recipeId) {
+            // Placeholder for edit functionality
+            alert(`Edit functionality for recipe ID ${recipeId} is not yet implemented.`);
+            // In the future, this could open a modal or redirect to an edit page with the recipe details pre-filled.
         }
-
-        // Add event listeners for filter checkboxes
-        document.getElementById('filter-chicken').addEventListener('change', displayRecipes);
-        document.getElementById('filter-beef').addEventListener('change', displayRecipes);
-        document.getElementById('filter-vegetarian').addEventListener('change', displayRecipes);
 
         window.onload = loadRecipes;
     </script>
