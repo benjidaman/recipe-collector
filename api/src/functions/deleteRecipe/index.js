@@ -3,10 +3,6 @@ const { CosmosClient } = require("@azure/cosmos");
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    // Log the full request URL and bindings for debugging
-    context.log(`Request URL: ${req.url}`);
-    context.log(`Binding Data: ${JSON.stringify(context.bindingData)}`);
-
     const endpoint = process.env.COSMOSDB_ENDPOINT;
     const key = process.env.COSMOSDB_KEY;
     context.log(`COSMOSDB_ENDPOINT: ${endpoint}`);
@@ -52,12 +48,25 @@ module.exports = async function (context, req) {
         return;
     }
 
-    const recipeId = context.bindingData.recipeId;
+    // Log the full request URL and binding data for debugging
+    context.log(`Request URL: ${req.url}`);
+    context.log(`Binding Data: ${JSON.stringify(context.bindingData)}`);
+
+    let recipeId = context.bindingData.recipeId;
+    if (!recipeId) {
+        // Fallback: Try to extract recipeId from the URL
+        if (req.url) {
+            const urlParts = req.url.split('/');
+            recipeId = urlParts[urlParts.length - 1];
+            context.log(`Extracted recipeId from URL: ${recipeId}`);
+        }
+    }
+
     if (!recipeId) {
         context.log.warn('Missing recipeId in request');
         context.res = {
             status: 400,
-            body: "Please provide a recipe ID."
+            body: `Please provide a recipe ID. Request URL: ${req.url}, Binding Data: ${JSON.stringify(context.bindingData)}`
         };
         return;
     }
