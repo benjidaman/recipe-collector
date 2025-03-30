@@ -5,6 +5,8 @@ module.exports = async function (context, req) {
 
     const endpoint = process.env.COSMOSDB_ENDPOINT;
     const key = process.env.COSMOSDB_KEY;
+    context.log(`COSMOSDB_ENDPOINT: ${endpoint}`);
+    context.log(`COSMOSDB_KEY (first 5 chars): ${key ? key.substring(0, 5) : 'undefined'}...`); // Mask the key for security
     const client = new CosmosClient({ endpoint, key });
 
     const databaseId = "RecipesDB";
@@ -25,8 +27,9 @@ module.exports = async function (context, req) {
         id: Date.now().toString(),
         url: req.body.url,
         name: req.body.name,
-        comment: req.body.comment || "", // Store the comment, default to empty string if not provided
-        ingredients: []
+        comment: req.body.comment || "",
+        ingredients: req.body.ingredients || [],
+        dateAdded: new Date().toISOString()
     };
 
     try {
