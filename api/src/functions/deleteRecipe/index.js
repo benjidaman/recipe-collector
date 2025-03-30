@@ -3,6 +3,10 @@ const { CosmosClient } = require("@azure/cosmos");
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
+    // Log the full request URL and bindings for debugging
+    context.log(`Request URL: ${req.url}`);
+    context.log(`Binding Data: ${JSON.stringify(context.bindingData)}`);
+
     const endpoint = process.env.COSMOSDB_ENDPOINT;
     const key = process.env.COSMOSDB_KEY;
     context.log(`COSMOSDB_ENDPOINT: ${endpoint}`);
