@@ -8,26 +8,54 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .nav-bar { margin-bottom: 20px; }
-        .nav-button { padding: 10px 20px; font-size: 16px; text-decoration: none; color: white; background-color: #800080; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; display: inline-block; } /* Purple button, inline for multiple buttons */
-        .nav-button:hover { background-color: #4b0082; } /* Darker purple on hover */
+        .nav-bar { 
+            margin-bottom: 20px; 
+            white-space: nowrap; 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .nav-button { 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            text-decoration: none; 
+            color: white; 
+            background-color: #800080; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-right: 10px; 
+            display: inline-block; 
+        }
+        .nav-button:hover { background-color: #4b0082; }
         .header { display: flex; align-items: center; margin-bottom: 20px; }
-        .logo { width: 96px; height: 96px; margin-right: 10px; } /* 3x larger than original 32px */
-        .logo-text { font-size: 54px; font-weight: bold; color: #ff69b4; } /* 3x larger than original 18px, pink */
-        .prompt { width: 64%; padding: 10px; margin-bottom: 10px; display: block; } /* Ensure block display */
-        .comment-box { width: 64%; height: 200px; padding: 10px; margin-bottom: 10px; resize: vertical; display: block; } /* Ensure block display */
-        .add-button { padding: 30px 60px; font-size: 24px; margin-bottom: 10px; display: block; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; } /* Pink Add button */
-        .add-button:hover { background-color: #ff1493; } /* Darker pink on hover */
+        .logo { width: 96px; height: 96px; margin-right: 10px; }
+        .logo-text { font-size: 54px; font-weight: bold; color: #ff69b4; }
+        .prompt { width: 64%; padding: 10px; margin-bottom: 10px; display: block; }
+        .comment-box { width: 64%; height: 200px; padding: 10px; margin-bottom: 10px; resize: vertical; display: block; }
+        .add-button { padding: 30px 60px; font-size: 24px; margin-bottom: 10px; display: block; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .add-button:hover { background-color: #ff1493; }
         .message { display: none; }
         .success { color: green; }
         .error { color: red; }
         /* Style placeholder text to be pink */
-        .prompt::placeholder, .comment-box::placeholder { color: #ff69b4; opacity: 1; } /* Pink placeholder text */
+        .prompt::placeholder, .comment-box::placeholder { color: #ff69b4; opacity: 1; }
         /* For older browsers */
         .prompt::-webkit-input-placeholder, .comment-box::-webkit-input-placeholder { color: #ff69b4; }
         .prompt:-moz-placeholder, .comment-box:-moz-placeholder { color: #ff69b4; opacity: 1; }
         .prompt::-moz-placeholder, .comment-box::-moz-placeholder { color: #ff69b4; opacity: 1; }
         .prompt:-ms-input-placeholder, .comment-box:-ms-input-placeholder { color: #ff69b4; }
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .nav-button { 
+                padding: 8px 16px; 
+                font-size: 14px; 
+                margin-right: 5px; 
+            }
+            .logo { width: 64px; height: 64px; margin-right: 8px; }
+            .logo-text { font-size: 36px; }
+            .prompt, .comment-box { width: 100%; }
+            .add-button { padding: 20px 40px; font-size: 20px; }
+        }
     </style>
 </head>
 <body>

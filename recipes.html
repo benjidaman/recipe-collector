@@ -7,8 +7,24 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .nav-bar { margin-bottom: 20px; }
-        .nav-button { padding: 10px 20px; font-size: 16px; text-decoration: none; color: white; background-color: #800080; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; display: inline-block; }
+        .nav-bar { 
+            margin-bottom: 20px; 
+            white-space: nowrap; 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .nav-button { 
+            padding: 10px 20px; 
+            font-size: 16px; 
+            text-decoration: none; 
+            color: white; 
+            background-color: #800080; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-right: 10px; 
+            display: inline-block; 
+        }
         .nav-button:hover { background-color: #4b0082; }
         .header { display: flex; align-items: center; margin-bottom: 20px; }
         .logo { width: 96px; height: 96px; margin-right: 10px; }
@@ -48,6 +64,21 @@
         .modal-form input:-moz-placeholder, .modal-form textarea:-moz-placeholder { color: #ff69b4; opacity: 1; }
         .modal-form input::-moz-placeholder, .modal-form textarea::-moz-placeholder { color: #ff69b4; opacity: 1; }
         .modal-form input:-ms-input-placeholder, .modal-form textarea:-ms-input-placeholder { color: #ff69b4; }
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .nav-button { 
+                padding: 8px 16px; 
+                font-size: 14px; 
+                margin-right: 5px; 
+            }
+            .logo { width: 64px; height: 64px; margin-right: 8px; }
+            .logo-text { font-size: 36px; }
+            .title-block h1 { font-size: 20px; }
+            .filter-select { padding: 4px; margin-right: 5px; font-size: 14px; }
+            .recipe-name { font-size: 16px; }
+            .recipe-description { font-size: 14px; }
+            .action-button { padding: 4px 8px; font-size: 12px; }
+        }
     </style>
 </head>
 <body>
@@ -104,18 +135,22 @@
     <script>
         const API_BASE_URL = 'https://recipe-collector-functions.azurewebsites.net';
         let allRecipes = [];
-
+    
         async function loadRecipes() {
             const recipesDiv = document.getElementById('recipes');
             const errorElement = document.getElementById('error');
             const recipeCountElement = document.getElementById('recipe-count');
-
+    
+            // Clear previous message
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+    
             try {
                 const response = await fetch(`${API_BASE_URL}/api/getRecipes`, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
-
+    
                 if (response.ok) {
                     try {
                         const data = await response.json();
@@ -136,7 +171,7 @@
                 errorElement.style.display = 'block';
             }
         }
-
+    
         function sortRecipes() {
             const sortBy = document.getElementById('filter-sort').value;
             if (sortBy === 'date-desc') {
@@ -150,24 +185,24 @@
             }
             displayRecipes();
         }
-
+    
         function filterRecipes() {
             const filterProtein = document.getElementById('filter-protein').value;
             let filteredRecipes = allRecipes;
-
+    
             if (filterProtein) {
                 filteredRecipes = allRecipes.filter(recipe => {
                     const name = recipe.name.toLowerCase();
                     return name.includes(filterProtein.toLowerCase());
                 });
             }
-
+    
             displayRecipes(filteredRecipes);
         }
-
+    
         function displayRecipes(recipesToDisplay = allRecipes) {
             const recipesDiv = document.getElementById('recipes');
-
+    
             if (recipesToDisplay.length === 0) {
                 recipesDiv.innerHTML = '<p>No recipes found.</p>';
             } else {
@@ -191,7 +226,7 @@
                 `).join('');
             }
         }
-
+    
         function toggleDescription(recipeId) {
             const descElement = document.getElementById(`desc-${recipeId}`);
             const button = descElement.nextElementSibling;
@@ -203,20 +238,24 @@
                 button.textContent = 'Show More';
             }
         }
-
+    
         async function deleteRecipe(recipeId) {
             const messageElement = document.getElementById(`message-${recipeId}`);
-
+            const errorElement = document.getElementById('error');
+    
+            // Clear previous messages
             messageElement.textContent = '';
             messageElement.style.display = 'none';
             messageElement.classList.remove('success', 'error');
-
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+    
             try {
                 const response = await fetch(`${API_BASE_URL}/api/deleteRecipe/${recipeId}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 });
-
+    
                 if (response.ok) {
                     messageElement.textContent = 'Recipe deleted successfully!';
                     messageElement.classList.add('success');
@@ -237,34 +276,44 @@
                 messageElement.style.display = 'block';
             }
         }
-
+    
         function editRecipe(recipeId) {
             const recipe = allRecipes.find(r => r.id === recipeId);
-            if (!recipe) return;
-
+            if (!recipe) {
+                const errorElement = document.getElementById('error');
+                errorElement.textContent = `Error: Recipe with ID ${recipeId} not found.`;
+                errorElement.style.display = 'block';
+                return;
+            }
+    
             document.getElementById('editRecipeId').value = recipe.id;
             document.getElementById('editName').value = recipe.name;
             document.getElementById('editUrl').value = recipe.url;
             document.getElementById('editComment').value = recipe.comment || '';
             document.getElementById('editIngredients').value = recipe.ingredients ? recipe.ingredients.join(', ') : '';
-
+    
             document.getElementById('editModal').style.display = 'block';
         }
-
+    
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
         }
-
+    
         document.getElementById('editForm').addEventListener('submit', async (event) => {
             event.preventDefault();
-
+    
             const recipeId = document.getElementById('editRecipeId').value;
             const name = document.getElementById('editName').value;
             const url = document.getElementById('editUrl').value;
             const comment = document.getElementById('editComment').value;
             const ingredientsInput = document.getElementById('editIngredients').value;
             const ingredients = ingredientsInput ? ingredientsInput.split(',').map(item => item.trim()).filter(item => item) : [];
-
+            const errorElement = document.getElementById('error');
+    
+            // Clear previous message
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+    
             const updatedRecipe = {
                 id: recipeId,
                 name,
@@ -273,33 +322,43 @@
                 ingredients,
                 dateAdded: allRecipes.find(r => r.id === recipeId).dateAdded
             };
-
+    
             try {
                 const response = await fetch(`${API_BASE_URL}/api/updateRecipe`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updatedRecipe)
                 });
-
+    
                 if (response.ok) {
                     closeModal();
                     loadRecipes();
+                    errorElement.textContent = 'Recipe updated successfully!';
+                    errorElement.style.color = 'green';
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 2000);
                 } else {
                     const errorText = await response.text();
-                    alert(`Error updating recipe: ${response.status} - ${errorText}`);
+                    errorElement.textContent = `Error updating recipe: ${response.status} - ${errorText}`;
+                    errorElement.style.color = 'red';
+                    errorElement.style.display = 'block';
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
             }
         });
-
+    
         window.onclick = function(event) {
             const modal = document.getElementById('editModal');
             if (event.target === modal) {
                 closeModal();
             }
         };
-
+    
         window.onload = loadRecipes;
     </script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9281cb6a4be2ed7f',t:'MTc0MzI3Njc2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>

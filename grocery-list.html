@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat's Kitchen - Grocery List</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
-        .nav-bar { margin-bottom: 20px; }
+        .nav-bar { 
+            margin-bottom: 20px; 
+            white-space: nowrap; 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+        }
         .nav-button { 
             padding: 10px 20px; 
             font-size: 16px; 
@@ -44,6 +49,17 @@
         .move-buttons button { padding: 5px 10px; margin-left: 5px; background-color: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .move-buttons button:hover { background-color: #800080; }
         .grocery-item.selected .move-buttons { display: inline-block; }
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            .nav-button { 
+                padding: 8px 16px; 
+                font-size: 14px; 
+                margin-right: 5px; 
+            }
+            .logo { width: 64px; height: 64px; margin-right: 8px; }
+            .logo-text { font-size: 36px; }
+            .add-form input { width: 150px; }
+        }
     </style>
 </head>
 <body>
@@ -53,10 +69,10 @@
         <a href="/this-weeks-meals.html" class="nav-button">This Week's Meals</a>
         <a href="/grocery-list.html" class="nav-button">Grocery List</a>
     </div>
-    <header>
+    <div class="header">
         <img src="/cats-kitchen-logo.png" alt="Cat's Kitchen Logo" class="logo">
         <span class="logo-text">Cat's Kitchen</span>
-    </header>
+    </div>
     <main>
         <h2>Grocery List</h2>
         <div class="add-form">
@@ -110,7 +126,7 @@
             const itemName = document.getElementById('newItemInput').value.trim();
             const errorElement = document.getElementById('error');
 
-            // Clear previous error
+            // Clear previous message
             errorElement.textContent = '';
             errorElement.style.display = 'none';
 
@@ -129,14 +145,22 @@
 
                 if (response.ok) {
                     document.getElementById('newItemInput').value = '';
+                    errorElement.textContent = 'Item added successfully!';
+                    errorElement.style.color = 'green';
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 2000);
                     loadGroceryList();
                 } else {
                     const errorText = await response.text();
                     errorElement.textContent = `Error adding item: ${response.status} - ${errorText}`;
+                    errorElement.style.color = 'red';
                     errorElement.style.display = 'block';
                 }
             } catch (error) {
                 errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
             }
         }
@@ -147,6 +171,12 @@
         }
 
         async function toggleGrabbed(itemId, isGrabbed) {
+            const errorElement = document.getElementById('error');
+
+            // Clear previous message
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
                     method: 'PUT',
@@ -156,16 +186,32 @@
 
                 if (response.ok) {
                     loadGroceryList();
+                    errorElement.textContent = `Item ${isGrabbed ? 'marked as grabbed' : 'unmarked'} successfully!`;
+                    errorElement.style.color = 'green';
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 2000);
                 } else {
                     const errorText = await response.text();
-                    alert(`Error updating item: ${response.status} - ${errorText}`);
+                    errorElement.textContent = `Error updating item: ${response.status} - ${errorText}`;
+                    errorElement.style.color = 'red';
+                    errorElement.style.display = 'block';
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
             }
         }
 
         async function moveItem(itemId, direction) {
+            const errorElement = document.getElementById('error');
+
+            // Clear previous message
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+
             try {
                 const response = await fetch(`${API_BASE_URL}/api/reorderGroceryItem`, {
                     method: 'PUT',
@@ -175,21 +221,38 @@
 
                 if (response.ok) {
                     loadGroceryList();
+                    errorElement.textContent = `Item moved ${direction} successfully!`;
+                    errorElement.style.color = 'green';
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 2000);
                 } else {
                     const errorText = await response.text();
-                    alert(`Error moving item: ${response.status} - ${errorText}`);
+                    errorElement.textContent = `Error moving item: ${response.status} - ${errorText}`;
+                    errorElement.style.color = 'red';
+                    errorElement.style.display = 'block';
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
             }
         }
 
         async function deleteSelectedItems() {
             const selectedItems = document.querySelectorAll('.select-item:checked');
             const itemIds = Array.from(selectedItems).map(item => item.parentElement.getAttribute('data-id'));
+            const errorElement = document.getElementById('error');
+
+            // Clear previous message
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
 
             if (itemIds.length === 0) {
-                alert('Please select at least one item to delete.');
+                errorElement.textContent = 'Please select at least one item to delete.';
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
                 return;
             }
 
@@ -202,18 +265,28 @@
 
                 if (response.ok) {
                     loadGroceryList();
+                    errorElement.textContent = 'Selected items deleted successfully!';
+                    errorElement.style.color = 'green';
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 2000);
                 } else {
                     const errorText = await response.text();
-                    alert(`Error deleting items: ${response.status} - ${errorText}`);
+                    errorElement.textContent = `Error deleting items: ${response.status} - ${errorText}`;
+                    errorElement.style.color = 'red';
+                    errorElement.style.display = 'block';
                 }
             } catch (error) {
-                alert(`Error: ${error.message}`);
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
             }
         }
 
         window.onload = loadGroceryList;
     </script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9292528a5c90334d',t:'MTc0MzQ1MDA2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92936a914d15bf77',t:'MTc0MzQ2MTUzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9293a4552f8f32f2',t:'MTc0MzQ2MzkwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
