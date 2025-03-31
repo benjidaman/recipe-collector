@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cat's Kitchen - Grocery List</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
@@ -42,7 +41,7 @@
             color: gray;
         }
         .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
-        .add-form input { padding: 5px; width: 200px; }
+        .add-form input { padding: 5px; width: 64%; }
         .add-form button { padding: 5px 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .add-form button:hover { background-color: #ff1493; }
         .move-buttons { display: none; margin-left: 10px; }
@@ -58,7 +57,7 @@
             }
             .logo { width: 64px; height: 64px; margin-right: 8px; }
             .logo-text { font-size: 36px; }
-            .add-form input { width: 150px; }
+            .add-form input { width: 100%; }
         }
     </style>
 </head>
@@ -145,12 +144,6 @@
 
                 if (response.ok) {
                     document.getElementById('newItemInput').value = '';
-                    errorElement.textContent = 'Item added successfully!';
-                    errorElement.style.color = 'green';
-                    errorElement.style.display = 'block';
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                    }, 2000);
                     loadGroceryList();
                 } else {
                     const errorText = await response.text();
@@ -186,12 +179,6 @@
 
                 if (response.ok) {
                     loadGroceryList();
-                    errorElement.textContent = `Item ${isGrabbed ? 'marked as grabbed' : 'unmarked'} successfully!`;
-                    errorElement.style.color = 'green';
-                    errorElement.style.display = 'block';
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                    }, 2000);
                 } else {
                     const errorText = await response.text();
                     errorElement.textContent = `Error updating item: ${response.status} - ${errorText}`;
@@ -221,12 +208,6 @@
 
                 if (response.ok) {
                     loadGroceryList();
-                    errorElement.textContent = `Item moved ${direction} successfully!`;
-                    errorElement.style.color = 'green';
-                    errorElement.style.display = 'block';
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                    }, 2000);
                 } else {
                     const errorText = await response.text();
                     errorElement.textContent = `Error moving item: ${response.status} - ${errorText}`;
@@ -265,12 +246,6 @@
 
                 if (response.ok) {
                     loadGroceryList();
-                    errorElement.textContent = 'Selected items deleted successfully!';
-                    errorElement.style.color = 'green';
-                    errorElement.style.display = 'block';
-                    setTimeout(() => {
-                        errorElement.style.display = 'none';
-                    }, 2000);
                 } else {
                     const errorText = await response.text();
                     errorElement.textContent = `Error deleting items: ${response.status} - ${errorText}`;
@@ -287,6 +262,6 @@
         window.onload = loadGroceryList;
     </script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9292528a5c90334d',t:'MTc0MzQ1MDA2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9293a4552f8f32f2',t:'MTc0MzQ2MzkwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9293b5b7b8c732ed',t:'MTc0MzQ2NDYxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
