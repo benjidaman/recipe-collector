@@ -64,4 +64,27 @@ module.exports = async function (context, req) {
     const updatedRecipe = {
         id: req.body.id,
         url: req.body.url,
-        name: req.body.nam
+        name: req.body.name,
+        comment: req.body.comment || "",
+        ingredients: req.body.ingredients || [],
+        dateAdded: req.body.dateAdded
+    };
+
+    try {
+        const { resource } = await container.item(updatedRecipe.id, updatedRecipe.id).replace(updatedRecipe);
+        context.log(`Successfully updated recipe with ID: ${updatedRecipe.id}`);
+        context.res = {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+            body: resource
+        };
+    } catch (error) {
+        context.log.error(`Failed to update recipe: ${error.message}`);
+        context.log.error(`Error stack: ${error.stack}`);
+        context.res = {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: `Error updating recipe: ${error.message}` })
+        };
+    }
+};
