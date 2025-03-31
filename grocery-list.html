@@ -6,6 +6,13 @@
     <title>Cat's Kitchen - Grocery List</title>
     <link rel="stylesheet" href="styles.css">
     <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .nav-bar { margin-bottom: 20px; }
+        .nav-button { padding: 10px 20px; font-size: 16px; text-decoration: none; color: white; background-color: #800080; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px; display: inline-block; }
+        .nav-button:hover { background-color: #4b0082; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .logo { width: 96px; height: 96px; margin-right: 10px; }
+        .logo-text { font-size: 54px; font-weight: bold; color: #ff69b4; }
         .grocery-item {
             display: flex;
             align-items: center;
@@ -25,12 +32,12 @@
         <img src="cat-kitchen-logo.png" alt="Cat's Kitchen Logo">
         <h1>Cat's Kitchen</h1>
     </header>
-    <nav>
-        <button onclick="window.location.href='index.html'">Add Recipe</button>
-        <button onclick="window.location.href='recipes.html'">View Recipes</button>
-        <button onclick="window.location.href='this-weeks-meals.html'">This Week's Meals</button>
-        <button onclick="window.location.href='grocery-list.html'">Grocery List</button>
-    </nav>
+    <div class="nav-bar">
+        <a href="/index.html" class="nav-button">Add Recipe</a>
+        <a href="/recipes.html" class="nav-button">View Recipes</a>
+        <a href="/this-weeks-meals.html" class="nav-button">This Week's Meals</a>
+        <a href="/grocery-list.html" class="nav-button">Grocery List</a>
+    </div>
     <main>
         <h2>Grocery List</h2>
         <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px;">Delete Selected</button>
@@ -125,5 +132,6 @@
 
         window.onload = loadGroceryList;
     </script>
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9292528a5c90334d',t:'MTc0MzQ1MDA2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
