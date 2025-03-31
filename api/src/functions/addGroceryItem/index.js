@@ -61,11 +61,31 @@ module.exports = async function (context, req) {
         return;
     }
 
+    // Fetch the current highest order value
+    let maxOrder = 0;
+    try {
+        const querySpec = {
+            query: "SELECT VALUE MAX(c.[order]) FROM c"
+        };
+        const { resources } = await container.items.query(querySpec).fetchAll();
+        maxOrder = resources[0] || 0;
+    } catch (error) {
+        context.log.error(`Failed to fetch max order: ${error.message}`);
+        context.log.error(`Error stack: ${error.stack}`);
+        context.res = {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: `Error fetching max order: ${error.message}` })
+        };
+        return;
+    }
+
     const newItem = {
         id: Date.now().toString(),
         name: req.body.name,
         dateAdded: new Date().toISOString(),
-        isGrabbed: false
+        isGrabbed: false,
+        order: maxOrder + 1
     };
 
     try {

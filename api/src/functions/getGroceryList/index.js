@@ -52,7 +52,10 @@ module.exports = async function (context, req) {
     }
 
     try {
-        const { resources } = await container.items.readAll().fetchAll();
+        const querySpec = {
+            query: "SELECT * FROM c ORDER BY c.[order] ASC"
+        };
+        const { resources } = await container.items.query(querySpec).fetchAll();
         context.log(`Successfully fetched ${resources.length} grocery items`);
         context.res = {
             status: 200,
