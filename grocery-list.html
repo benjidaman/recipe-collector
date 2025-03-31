@@ -25,6 +25,10 @@
             text-decoration: line-through;
             color: gray;
         }
+        .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
+        .add-form input { padding: 5px; width: 200px; }
+        .add-form button { padding: 5px 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .add-form button:hover { background-color: #ff1493; }
     </style>
 </head>
 <body>
@@ -40,6 +44,10 @@
     </header>
     <main>
         <h2>Grocery List</h2>
+        <div class="add-form">
+            <input type="text" id="newItemInput" placeholder="Enter item name" required>
+            <button onclick="addGroceryItem()">Add Item</button>
+        </div>
         <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px;">Delete Selected</button>
         <div id="grocery-list"></div>
         <div id="error" style="display: none; color: red;"></div>
@@ -71,6 +79,41 @@
                 } else {
                     const errorText = await response.text();
                     errorElement.textContent = `Error fetching grocery list: ${response.status} - ${errorText}`;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        async function addGroceryItem() {
+            const itemName = document.getElementById('newItemInput').value.trim();
+            const errorElement = document.getElementById('error');
+
+            // Clear previous error
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+
+            if (!itemName) {
+                errorElement.textContent = 'Please enter an item name';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/addGroceryItem`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: itemName })
+                });
+
+                if (response.ok) {
+                    document.getElementById('newItemInput').value = '';
+                    loadGroceryList();
+                } else {
+                    const errorText = await response.text();
+                    errorElement.textContent = `Error adding item: ${response.status} - ${errorText}`;
                     errorElement.style.display = 'block';
                 }
             } catch (error) {
