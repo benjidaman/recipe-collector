@@ -21,7 +21,7 @@
         .grocery-item input[type="checkbox"] {
             margin-right: 10px;
         }
-        .grocery-item.strikethrough {
+        .grocery-item-name.strikethrough {
             text-decoration: line-through;
             color: gray;
         }
@@ -68,9 +68,9 @@
                 if (response.ok) {
                     const items = await response.json();
                     groceryListDiv.innerHTML = items.map(item => `
-                        <div class="grocery-item ${item.isGrabbed ? 'strikethrough' : ''}" data-id="${item.id}">
+                        <div class="grocery-item" data-id="${item.id}">
                             <input type="checkbox" class="select-item" onchange="toggleSelection('${item.id}')">
-                            <span>${item.name}</span>
+                            <span class="grocery-item-name ${item.isGrabbed ? 'strikethrough' : ''}">${item.name}</span>
                             <button onclick="toggleGrabbed('${item.id}', ${!item.isGrabbed})" style="margin-left: 10px;">
                                 ${item.isGrabbed ? 'Unmark' : 'Mark as Grabbed'}
                             </button>
