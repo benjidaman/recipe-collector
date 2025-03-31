@@ -1,4 +1,3 @@
-ECHO is on.
 const { CosmosClient } = require("@azure/cosmos");
 
 module.exports = async function (context, req) {
@@ -13,7 +12,8 @@ module.exports = async function (context, req) {
         context.log.error('Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY');
         context.res = {
             status: 500,
-            body: "Server configuration error: Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY"
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: "Server configuration error: Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY" })
         };
         return;
     }
@@ -26,7 +26,8 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            body: `Error creating CosmosClient: ${error.message}`
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: `Error creating CosmosClient: ${error.message}` })
         };
         return;
     }
@@ -44,7 +45,8 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            body: `Error connecting to database/container: ${error.message}`
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: `Error connecting to database/container: ${error.message}` })
         };
         return;
     }
@@ -53,7 +55,8 @@ module.exports = async function (context, req) {
         context.log.warn('Invalid request body: Missing required fields');
         context.res = {
             status: 400,
-            body: "Please provide a recipe with id, url, and name."
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: "Please provide a recipe with id, url, and name." })
         };
         return;
     }
@@ -61,25 +64,4 @@ module.exports = async function (context, req) {
     const updatedRecipe = {
         id: req.body.id,
         url: req.body.url,
-        name: req.body.name,
-        comment: req.body.comment || "",
-        ingredients: req.body.ingredients || [],
-        dateAdded: req.body.dateAdded
-    };
-
-    try {
-        const { resource } = await container.item(updatedRecipe.id, updatedRecipe.id).replace(updatedRecipe);
-        context.log(`Successfully updated recipe with ID: ${updatedRecipe.id}`);
-        context.res = {
-            status: 200,
-            body: resource
-        };
-    } catch (error) {
-        context.log.error(`Failed to update recipe: ${error.message}`);
-        context.log.error(`Error stack: ${error.stack}`);
-        context.res = {
-            status: 500,
-            body: `Error updating recipe: ${error.message}`
-        };
-    }
-};
+        name: req.body.nam
