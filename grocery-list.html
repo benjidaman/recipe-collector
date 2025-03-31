@@ -29,6 +29,10 @@
         .add-form input { padding: 5px; width: 200px; }
         .add-form button { padding: 5px 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .add-form button:hover { background-color: #ff1493; }
+        .move-buttons { display: none; margin-left: 10px; }
+        .move-buttons button { padding: 5px 10px; margin-left: 5px; background-color: #800080; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .move-buttons button:hover { background-color: #4b0082; }
+        .grocery-item.selected .move-buttons { display: inline-block; }
     </style>
 </head>
 <body>
@@ -74,6 +78,10 @@
                             <button onclick="toggleGrabbed('${item.id}', ${!item.isGrabbed})" style="margin-left: 10px;">
                                 ${item.isGrabbed ? 'Unmark' : 'Mark as Grabbed'}
                             </button>
+                            <div class="move-buttons">
+                                <button onclick="moveItem('${item.id}', 'up')">Move Up</button>
+                                <button onclick="moveItem('${item.id}', 'down')">Move Down</button>
+                            </div>
                         </div>
                     `).join('');
                 } else {
@@ -140,6 +148,25 @@
                 } else {
                     const errorText = await response.text();
                     alert(`Error updating item: ${response.status} - ${errorText}`);
+                }
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        }
+
+        async function moveItem(itemId, direction) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/reorderGroceryItem`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ itemId, direction })
+                });
+
+                if (response.ok) {
+                    loadGroceryList();
+                } else {
+                    const errorText = await response.text();
+                    alert(`Error moving item: ${response.status} - ${errorText}`);
                 }
             } catch (error) {
                 alert(`Error: ${error.message}`);
