@@ -12,7 +12,8 @@ module.exports = async function (context, req) {
         context.log.error('Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY');
         context.res = {
             status: 500,
-            body: "Server configuration error: Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY"
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: "Server configuration error: Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY" })
         };
         return;
     }
@@ -25,7 +26,8 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            body: `Error creating CosmosClient: ${error.message}`
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: `Error creating CosmosClient: ${error.message}` })
         };
         return;
     }
@@ -43,7 +45,8 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            body: `Error connecting to database/container: ${error.message}`
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: `Error connecting to database/container: ${error.message}` })
         };
         return;
     }
@@ -53,6 +56,7 @@ module.exports = async function (context, req) {
         context.log(`Successfully fetched ${resources.length} recipes`);
         context.res = {
             status: 200,
+            headers: { "Content-Type": "application/json" },
             body: resources
         };
     } catch (error) {
@@ -60,7 +64,8 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            body: `Error fetching recipes: ${error.message}`
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: `Error fetching recipes: ${error.message}` })
         };
     }
 };
