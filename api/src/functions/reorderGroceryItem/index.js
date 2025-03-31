@@ -77,7 +77,7 @@ module.exports = async function (context, req) {
     try {
         // Fetch all items sorted by order
         const querySpec = {
-            query: "SELECT * FROM c ORDER BY c.[order] ASC"
+            query: 'SELECT * FROM c ORDER BY c["order"] ASC'
         };
         const { resources: items } = await container.items.query(querySpec).fetchAll();
 

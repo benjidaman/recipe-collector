@@ -53,7 +53,7 @@ module.exports = async function (context, req) {
 
     try {
         const querySpec = {
-            query: "SELECT * FROM c ORDER BY c.[order] ASC"
+            query: 'SELECT * FROM c ORDER BY c["order"] ASC'
         };
         const { resources } = await container.items.query(querySpec).fetchAll();
         context.log(`Successfully fetched ${resources.length} grocery items`);

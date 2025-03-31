@@ -65,7 +65,7 @@ module.exports = async function (context, req) {
     let maxOrder = 0;
     try {
         const querySpec = {
-            query: "SELECT VALUE MAX(c.[order]) FROM c"
+            query: 'SELECT VALUE MAX(c["order"]) FROM c'
         };
         const { resources } = await container.items.query(querySpec).fetchAll();
         maxOrder = resources[0] || 0;
