@@ -65,6 +65,7 @@ module.exports = async function (context, req) {
     const isGrabbed = req.body.isGrabbed; // Optional
     const category = req.body.category; // Optional
 
+    // Ensure at least one field (isGrabbed or category) is provided for update
     if (isGrabbed === undefined && category === undefined) {
         context.log.warn('Invalid request body: No fields to update');
         context.res = {
