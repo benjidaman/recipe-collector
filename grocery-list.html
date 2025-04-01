@@ -40,8 +40,8 @@
             text-decoration: line-through;
             color: gray;
         }
-        .add-form { display: flex; gap: 10px; margin-bottom: 20px; }
-        .add-form input { padding: 5px; width: 64%; }
+        .add-form { display: flex; gap: 10px; margin-bottom: 40px; } /* Changed from 20px to 40px to double the vertical whitespace */
+        .add-form input { padding: 5px; width: 44.8%; } /* Reduced from 64% to 44.8% (64% * 0.7 = 44.8%) */
         .add-form button { padding: 5px 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .add-form button:hover { background-color: #ff1493; }
         .move-buttons { display: none; margin-left: 10px; }
@@ -87,8 +87,10 @@
             <input type="text" id="newItemInput" placeholder="Enter item name" required>
             <button onclick="addGroceryItem()">Add Item</button>
         </div>
+        <button onclick="selectAllItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Select All</button> <!-- Added Select All button -->
         <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px;">Delete Selected</button>
         <button onclick="openSendListModal()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px;">Send List</button>
+        <button onclick="copyGroceryList()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px;">Copy List</button> <!-- Added Copy List button -->
         <div id="grocery-list"></div>
         <div id="error" style="display: none; color: red;"></div>
     </main>
@@ -247,6 +249,15 @@
             }
         }
 
+        function selectAllItems() {
+            const checkboxes = document.querySelectorAll('.select-item');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const itemDiv = checkbox.parentElement;
+                itemDiv.classList.add('selected');
+            });
+        }
+
         async function deleteSelectedItems() {
             const selectedItems = document.querySelectorAll('.select-item:checked');
             const itemIds = Array.from(selectedItems).map(item => item.parentElement.getAttribute('data-id'));
@@ -280,6 +291,20 @@
                 }
             } catch (error) {
                 errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
+            }
+        }
+
+        async function copyGroceryList() {
+            const errorElement = document.getElementById('error');
+
+            try {
+                const listText = await getGroceryListText();
+                await navigator.clipboard.writeText(listText);
+                alert('Grocery list copied to clipboard!');
+            } catch (error) {
+                errorElement.textContent = `Error copying list: ${error.message}`;
                 errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
             }
@@ -415,5 +440,5 @@
     </script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9292528a5c90334d',t:'MTc0MzQ1MDA2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
     <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9293b5b7b8c732ed',t:'MTc0MzQ2NDYxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'929510c00ba8bff2',t:'MTc0MzQ3ODgzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
