@@ -40,8 +40,8 @@
             text-decoration: line-through;
             color: gray;
         }
-        .add-form { display: flex; gap: 10px; margin-bottom: 40px; } /* Changed from 20px to 40px to double the vertical whitespace */
-        .add-form input { padding: 5px; width: 44.8%; } /* Reduced from 64% to 44.8% (64% * 0.7 = 44.8%) */
+        .add-form { display: flex; gap: 10px; margin-bottom: 40px; }
+        .add-form input { padding: 5px; width: 44.8%; }
         .add-form button { padding: 5px 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .add-form button:hover { background-color: #ff1493; }
         .move-buttons { display: none; margin-left: 10px; }
@@ -57,6 +57,7 @@
         .modal-form input { padding: 5px; width: 100%; box-sizing: border-box; }
         .modal-form button { padding: 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .modal-form button:hover { background-color: #ff1493; }
+        #grocery-list { margin-top: 20px; } /* Added to double the vertical whitespace between buttons and grocery list */
         /* Responsive adjustments for smaller screens */
         @media (max-width: 600px) {
             .nav-button { 
@@ -87,10 +88,10 @@
             <input type="text" id="newItemInput" placeholder="Enter item name" required>
             <button onclick="addGroceryItem()">Add Item</button>
         </div>
-        <button onclick="selectAllItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Select All</button> <!-- Added Select All button -->
-        <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px;">Delete Selected</button>
-        <button onclick="openSendListModal()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px;">Send List</button>
-        <button onclick="copyGroceryList()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px;">Copy List</button> <!-- Added Copy List button -->
+        <button onclick="selectAllItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Select All</button>
+        <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Delete Selected</button> <!-- Added margin-right -->
+        <button onclick="openSendListModal()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Send List</button> <!-- Added margin-right -->
+        <button onclick="copyGroceryList()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px;">Copy List</button>
         <div id="grocery-list"></div>
         <div id="error" style="display: none; color: red;"></div>
     </main>
