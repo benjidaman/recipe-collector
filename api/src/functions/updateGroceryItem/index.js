@@ -51,18 +51,29 @@ module.exports = async function (context, req) {
         return;
     }
 
-    if (!req.body || !req.body.id || req.body.isGrabbed === undefined) {
+    if (!req.body || !req.body.id) {
         context.log.warn('Invalid request body: Missing required fields');
         context.res = {
             status: 400,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ error: "Please provide an item id and isGrabbed status." })
+            body: JSON.stringify({ error: "Please provide an item id." })
         };
         return;
     }
 
     const itemId = req.body.id;
-    const isGrabbed = req.body.isGrabbed;
+    const isGrabbed = req.body.isGrabbed; // Optional
+    const category = req.body.category; // Optional
+
+    if (isGrabbed === undefined && category === undefined) {
+        context.log.warn('Invalid request body: No fields to update');
+        context.res = {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ error: "Please provide at least one field to update (isGrabbed or category)." })
+        };
+        return;
+    }
 
     try {
         // Fetch the existing item
@@ -77,8 +88,13 @@ module.exports = async function (context, req) {
             return;
         }
 
-        // Update the isGrabbed status
-        item.isGrabbed = isGrabbed;
+        // Update fields if provided
+        if (isGrabbed !== undefined) {
+            item.isGrabbed = isGrabbed;
+        }
+        if (category !== undefined) {
+            item.category = category;
+        }
 
         // Replace the item in Cosmos DB
         const { resource } = await container.item(itemId, itemId).replace(item);

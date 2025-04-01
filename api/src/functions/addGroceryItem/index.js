@@ -85,7 +85,8 @@ module.exports = async function (context, req) {
         name: req.body.name,
         dateAdded: new Date().toISOString(),
         isGrabbed: false,
-        order: maxOrder + 1
+        order: maxOrder + 1,
+        category: req.body.category || '' // Add category field, default to empty string if not provided
     };
 
     try {
