@@ -51,7 +51,7 @@
         .move-buttons button { padding: 5px 10px; margin-left: 5px; background-color: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .move-buttons button:hover { background-color: #800080; }
         .grocery-item.single-selected .move-buttons { display: inline-block; }
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal { display: none; position: fixed; z-index: 1; left  left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
         .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
         .close:hover, .close:focus { color: black; text-decoration: none; }
@@ -111,7 +111,7 @@
                 <select id="categorySelect" onchange="toggleCategoryInput()">
                     <option value="new">New Category</option>
                 </select>
-                <div id="newCategoryInput" style="display: none;">
+                <div id="newCategoryInput">
                     <label for="newCategoryName">New Category Name:</label>
                     <input type="text" id="newCategoryName" placeholder="Enter new category name">
                 </div>
@@ -402,6 +402,7 @@
             }
             document.getElementById('categorizeModal').style.display = 'block';
             updateCategoryDropdown();
+            toggleCategoryInput(); // Ensure the input field visibility is set correctly
         }
 
         function closeCategorizeModal() {
@@ -611,11 +612,8 @@
             }
 
             try {
-                const listText = await getGroceryListText();
-
-                // Send via SMS if phone number is provided
-                if (phoneNumber) {
-                    const smsResponse = await fetch(`${API_BASE_URL}/api/sendGroceryListSMS`, {
+                const listText = await getG  {
+                    const response = await fetch(`${API_BASE_URL}/api/sendGroceryListSMS`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ phoneNumber, message: listText })
