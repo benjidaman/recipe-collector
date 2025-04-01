@@ -57,7 +57,7 @@
         .modal-form input { padding: 5px; width: 100%; box-sizing: border-box; }
         .modal-form button { padding: 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .modal-form button:hover { background-color: #ff1493; }
-        #grocery-list { margin-top: 20px; } /* Added to double the vertical whitespace between buttons and grocery list */
+        #grocery-list { margin-top: 20px; }
         /* Responsive adjustments for smaller screens */
         @media (max-width: 600px) {
             .nav-button { 
@@ -88,9 +88,9 @@
             <input type="text" id="newItemInput" placeholder="Enter item name" required>
             <button onclick="addGroceryItem()">Add Item</button>
         </div>
-        <button onclick="selectAllItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Select All</button>
-        <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Delete Selected</button> <!-- Added margin-right -->
-        <button onclick="openSendListModal()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Send List</button> <!-- Added margin-right -->
+        <button id="selectAllButton" onclick="selectAllItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Select All</button> <!-- Added ID -->
+        <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Delete Selected</button>
+        <button onclick="openSendListModal()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px; margin-right: 10px;">Send List</button>
         <button onclick="copyGroceryList()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px;">Copy List</button>
         <div id="grocery-list"></div>
         <div id="error" style="display: none; color: red;"></div>
@@ -128,7 +128,7 @@
                     const items = await response.json();
                     groceryListDiv.innerHTML = items.map(item => `
                         <div class="grocery-item ${item.isSelected ? 'selected' : ''}" data-id="${item.id}">
-                            <input type="checkbox" class="select-item" onchange="toggleSelection('${item.id}')" ${item.isSelected ? 'checked' : ''}>
+                            <input type="checkbox" class="select-item" onchange="toggleSelection('${item.id}'); updateSelectAllButton();" ${item.isSelected ? 'checked' : ''}>
                             <span class="grocery-item-name ${item.isGrabbed ? 'strikethrough' : ''}">${item.name}</span>
                             <button onclick="toggleGrabbed('${item.id}', ${!item.isGrabbed})" style="margin-left: 10px;">
                                 ${item.isGrabbed ? 'Unmark' : 'Mark as Grabbed'}
@@ -139,6 +139,7 @@
                             </div>
                         </div>
                     `).join('');
+                    updateSelectAllButton(); // Update button state after loading the list
                 } else {
                     const errorText = await response.text();
                     errorElement.textContent = `Error fetching grocery list: ${response.status} - ${errorText}`;
@@ -250,13 +251,33 @@
             }
         }
 
+        function updateSelectAllButton() {
+            const checkboxes = document.querySelectorAll('.select-item');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            const selectAllButton = document.getElementById('selectAllButton');
+            if (checkboxes.length === 0) {
+                selectAllButton.textContent = 'Select All';
+                selectAllButton.disabled = true; // Disable button if no items
+            } else {
+                selectAllButton.disabled = false;
+                selectAllButton.textContent = allChecked ? 'Unselect All' : 'Select All';
+            }
+        }
+
         function selectAllItems() {
             const checkboxes = document.querySelectorAll('.select-item');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            
             checkboxes.forEach(checkbox => {
-                checkbox.checked = true;
+                checkbox.checked = !allChecked; // If all are checked, uncheck; otherwise, check
                 const itemDiv = checkbox.parentElement;
-                itemDiv.classList.add('selected');
+                if (!allChecked) {
+                    itemDiv.classList.add('selected');
+                } else {
+                    itemDiv.classList.remove('selected');
+                }
             });
+            updateSelectAllButton();
         }
 
         async function deleteSelectedItems() {
