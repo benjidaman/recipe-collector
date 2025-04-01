@@ -48,6 +48,15 @@
         .move-buttons button { padding: 5px 10px; margin-left: 5px; background-color: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .move-buttons button:hover { background-color: #800080; }
         .grocery-item.selected .move-buttons { display: inline-block; }
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover, .close:focus { color: black; text-decoration: none; }
+        .modal-form { display: flex; flex-direction: column; gap: 10px; }
+        .modal-form label { font-weight: bold; }
+        .modal-form input { padding: 5px; width: 100%; box-sizing: border-box; }
+        .modal-form button { padding: 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .modal-form button:hover { background-color: #ff1493; }
         /* Responsive adjustments for smaller screens */
         @media (max-width: 600px) {
             .nav-button { 
@@ -79,9 +88,26 @@
             <button onclick="addGroceryItem()">Add Item</button>
         </div>
         <button onclick="deleteSelectedItems()" style="background-color: purple; color: white; padding: 10px; margin-bottom: 10px;">Delete Selected</button>
+        <button onclick="openSendListModal()" style="background-color: #4b0082; color: white; padding: 10px; margin-bottom: 10px;">Send List</button>
         <div id="grocery-list"></div>
         <div id="error" style="display: none; color: red;"></div>
     </main>
+
+    <!-- Send List Modal -->
+    <div id="sendListModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSendListModal()">×</span>
+            <h2>Send Grocery List</h2>
+            <form id="sendListForm" class="modal-form">
+                <label for="phoneNumber">Phone Number (optional):</label>
+                <input type="tel" id="phoneNumber" placeholder="Enter phone number (e.g., +1234567890)">
+                <label for="emailAddress">Email Address (optional):</label>
+                <input type="email" id="emailAddress" placeholder="Enter email address">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         const API_BASE_URL = 'https://recipe-collector-functions.azurewebsites.net';
 
@@ -258,6 +284,132 @@
                 errorElement.style.display = 'block';
             }
         }
+
+        // Send List Modal Functions
+        function openSendListModal() {
+            document.getElementById('sendListModal').style.display = 'block';
+        }
+
+        function closeSendListModal() {
+            document.getElementById('sendListModal').style.display = 'none';
+            document.getElementById('phoneNumber').value = '';
+            document.getElementById('emailAddress').value = '';
+        }
+
+        // Format the grocery list as a text string (only item names, each on a new line with "-")
+        async function getGroceryListText() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/getGroceryList`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const items = await response.json();
+                    if (items.length === 0) {
+                        return "Your grocery list is empty.";
+                    }
+                    let listText = "Grocery List:\n";
+                    items.forEach(item => {
+                        listText += `- ${item.name}\n`;
+                    });
+                    return listText;
+                } else {
+                    throw new Error('Failed to fetch grocery list');
+                }
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Handle sending the grocery list
+        document.getElementById('sendListForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const emailAddress = document.getElementById('emailAddress').value.trim();
+            const errorElement = document.getElementById('error');
+
+            // Clear previous message
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+
+            // Validate input: at least one field must be provided
+            if (!phoneNumber && !emailAddress) {
+                errorElement.textContent = 'Please provide at least a phone number or email address.';
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Validate phone number format if provided
+            if (phoneNumber && !/^\+\d{10,15}$/.test(phoneNumber)) {
+                errorElement.textContent = 'Please enter a valid phone number (e.g., +1234567890).';
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            // Validate email format if provided
+            if (emailAddress && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
+                errorElement.textContent = 'Please enter a valid email address.';
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
+                return;
+            }
+
+            try {
+                const listText = await getGroceryListText();
+
+                // Send via SMS if phone number is provided
+                if (phoneNumber) {
+                    const smsResponse = await fetch(`${API_BASE_URL}/api/sendGroceryListSMS`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phoneNumber, message: listText })
+                    });
+
+                    if (!smsResponse.ok) {
+                        const errorText = await smsResponse.text();
+                        errorElement.textContent = `Error sending SMS: ${smsResponse.status} - ${errorText}`;
+                        errorElement.style.color = 'red';
+                        errorElement.style.display = 'block';
+                        return;
+                    }
+                }
+
+                // Send via email if email address is provided
+                if (emailAddress) {
+                    const emailResponse = await fetch(`${API_BASE_URL}/api/sendGroceryListEmail`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ emailAddress, subject: "Your Cat's Kitchen Grocery List", message: listText })
+                    });
+
+                    if (!emailResponse.ok) {
+                        const errorText = await emailResponse.text();
+                        errorElement.textContent = `Error sending email: ${emailResponse.status} - ${errorText}`;
+                        errorElement.style.color = 'red';
+                        errorElement.style.display = 'block';
+                        return;
+                    }
+                }
+
+                // Close the modal on success
+                closeSendListModal();
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.color = 'red';
+                errorElement.style.display = 'block';
+            }
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('sendListModal');
+            if (event.target === modal) {
+                closeSendListModal();
+            }
+        };
 
         window.onload = loadGroceryList;
     </script>
