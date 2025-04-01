@@ -37,7 +37,7 @@
             margin-right: 10px;
         }
         .grocery-item-name {
-            cursor: pointer; /* Add cursor pointer to indicate the text is clickable */
+            cursor: pointer;
         }
         .grocery-item-name.strikethrough {
             text-decoration: line-through;
@@ -50,7 +50,7 @@
         .move-buttons { display: none; margin-left: 10px; }
         .move-buttons button { padding: 5px 10px; margin-left: 5px; background-color: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .move-buttons button:hover { background-color: #800080; }
-        .grocery-item.selected .move-buttons { display: inline-block; }
+        .grocery-item.single-selected .move-buttons { display: inline-block; } /* Updated to use single-selected class */
         .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
         .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
         .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
@@ -139,6 +139,7 @@
                             </div>
                         </div>
                     `).join('');
+                    updateMoveButtonsVisibility(); // Update move buttons visibility after loading the list
                     updateSelectAllButton(); // Update button state after loading the list
                 } else {
                     const errorText = await response.text();
@@ -191,6 +192,24 @@
         function toggleSelection(itemId) {
             const itemDiv = document.querySelector(`.grocery-item[data-id="${itemId}"]`);
             itemDiv.classList.toggle('selected');
+            updateMoveButtonsVisibility(); // Update move buttons visibility after selection change
+        }
+
+        function updateMoveButtonsVisibility() {
+            const selectedItems = document.querySelectorAll('.grocery-item.selected');
+            const allItems = document.querySelectorAll('.grocery-item');
+
+            // Remove single-selected class from all items
+            allItems.forEach(item => {
+                item.classList.remove('single-selected');
+            });
+
+            // If exactly one item is selected, add single-selected class to that item
+            if (selectedItems.length === 1) {
+                selectedItems.forEach(item => {
+                    item.classList.add('single-selected');
+                });
+            }
         }
 
         async function toggleGrabbed(itemId, isGrabbed) {
@@ -278,6 +297,7 @@
                 }
             });
             updateSelectAllButton();
+            updateMoveButtonsVisibility(); // Update move buttons visibility after selection change
         }
 
         async function deleteSelectedItems() {
