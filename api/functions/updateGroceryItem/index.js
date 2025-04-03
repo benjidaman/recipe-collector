@@ -35,7 +35,12 @@ module.exports = async function (context, req) {
             context.log('Using req.body as parsed object');
             body = req.body;
         }
-        // Try req.getBody() to get the raw body as a Buffer
+        // If req.body is a string, parse it
+        else if (req.body && typeof req.body === 'string') {
+            context.log('Parsing req.body as string');
+            body = JSON.parse(req.body);
+        }
+        // Try req.getBody() to get the raw body as a string
         else if (req.getBody) {
             const rawBody = req.getBody('utf8');
             context.log('Raw Body from req.getBody():', rawBody);
