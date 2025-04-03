@@ -21,7 +21,66 @@ module.exports = async function (context, req) {
 
     // Log the raw request body and headers for debugging
     context.log('Request Headers:', req.headers);
-    context.log('Raw Request Body:', req.body);
+    context.log('Raw Request Body (req.body):', req.body);
+    context.log('Raw Request Body (req.rawBody):', req.rawBody);
+    context.log('Raw Request Buffer (req.buffer):', req.buffer);
+
+    // Parse the body
+    let body;
+    try {
+        // First, try using req.buffer() to get the raw body as a Buffer
+        if (req.buffer) {
+            const rawBody = req.buffer.toString('utf8');
+            context.log('Raw Body from req.buffer:', rawBody);
+            body = JSON.parse(rawBody);
+        }
+        // Fallback to req.body if it's already an object
+        else if (req.body && typeof req.body === 'object') {
+            body = req.body;
+        }
+        // Fallback to req.rawBody if available
+        else if (req.rawBody) {
+            body = JSON.parse(req.rawBody);
+        }
+        // If none are available, throw an error
+        else {
+            throw new Error("Request body is empty or not provided.");
+        }
+    } catch (error) {
+        context.log.error('Failed to parse request body:', error.message);
+        context.res = {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+            body: JSON.stringify({ error: "Invalid request body: Unable to parse JSON. " + error.message })
+        };
+        return;
+    }
+
+    if (!body || !body.id) {
+        context.log.warn('Invalid request body: Missing required fields');
+        context.res = {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+            body: JSON.stringify({ error: "Please provide an item id." })
+        };
+        return;
+    }
+
+    const itemId = body.id;
+    const isGrabbed = body.isGrabbed; // Optional
+    const category = body.category; // Optional
+    const name = body.name; // Optional - New field for updating the item name
+
+    // Ensure at least one field (isGrabbed, category, or name) is provided for update
+    if (isGrabbed === undefined && category === undefined && name === undefined) {
+        context.log.warn('Invalid request body: No fields to update');
+        context.res = {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+            body: JSON.stringify({ error: "Please provide at least one field to update (isGrabbed, category, or name)." })
+        };
+        return;
+    }
 
     const endpoint = process.env.COSMOSDB_ENDPOINT;
     const key = process.env.COSMOSDB_KEY;
@@ -67,32 +126,6 @@ module.exports = async function (context, req) {
             status: 500,
             headers: { "Content-Type": "application/json", ...corsHeaders },
             body: JSON.stringify({ error: `Error connecting to database/container: ${error.message}` })
-        };
-        return;
-    }
-
-    if (!req.body || !req.body.id) {
-        context.log.warn('Invalid request body: Missing required fields');
-        context.res = {
-            status: 400,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-            body: JSON.stringify({ error: "Please provide an item id." })
-        };
-        return;
-    }
-
-    const itemId = req.body.id;
-    const isGrabbed = req.body.isGrabbed; // Optional
-    const category = req.body.category; // Optional
-    const name = req.body.name; // Optional - New field for updating the item name
-
-    // Ensure at least one field (isGrabbed, category, or name) is provided for update
-    if (isGrabbed === undefined && category === undefined && name === undefined) {
-        context.log.warn('Invalid request body: No fields to update');
-        context.res = {
-            status: 400,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-            body: JSON.stringify({ error: "Please provide at least one field to update (isGrabbed, category, or name)." })
         };
         return;
     }
