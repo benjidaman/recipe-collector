@@ -20,28 +20,42 @@ module.exports = async function (context, req) {
     }
 
     // Log the raw request body and headers for debugging
+    context.log('Request Method:', req.method);
     context.log('Request Headers:', req.headers);
     context.log('Raw Request Body (req.body):', req.body);
     context.log('Raw Request Body (req.rawBody):', req.rawBody);
     context.log('Raw Request Buffer (req.buffer):', req.buffer);
+    context.log('Raw Request Body (req.getBody):', req.getBody ? req.getBody() : 'undefined');
 
     // Parse the body
     let body;
     try {
-        // First, try to read the raw body as a stream
-        const rawBody = await new Promise((resolve, reject) => {
-            let bodyChunks = [];
-            req.on('data', chunk => bodyChunks.push(chunk));
-            req.on('end', () => resolve(Buffer.concat(bodyChunks).toString('utf8')));
-            req.on('error', reject);
-        });
-        context.log('Raw Body from Stream:', rawBody);
-
-        if (!rawBody) {
+        // First, try using req.body if it's already an object
+        if (req.body && typeof req.body === 'object') {
+            context.log('Using req.body as parsed object');
+            body = req.body;
+        }
+        // Try req.getBody() to get the raw body as a Buffer
+        else if (req.getBody) {
+            const rawBody = req.getBody('utf8');
+            context.log('Raw Body from req.getBody():', rawBody);
+            body = JSON.parse(rawBody);
+        }
+        // Fallback to req.buffer
+        else if (req.buffer) {
+            const rawBody = req.buffer.toString('utf8');
+            context.log('Raw Body from req.buffer:', rawBody);
+            body = JSON.parse(rawBody);
+        }
+        // Fallback to req.rawBody
+        else if (req.rawBody) {
+            context.log('Raw Body from req.rawBody:', req.rawBody);
+            body = JSON.parse(req.rawBody);
+        }
+        // If none are available, throw an error
+        else {
             throw new Error("Request body is empty or not provided.");
         }
-
-        body = JSON.parse(rawBody);
     } catch (error) {
         context.log.error('Failed to parse request body:', error.message);
         context.res = {
