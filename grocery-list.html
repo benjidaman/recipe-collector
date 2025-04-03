@@ -5,73 +5,186 @@
     <title>Cat's Kitchen - Grocery List</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .nav-bar { 
-            margin-bottom: 20px; 
-            white-space: nowrap; 
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
         }
-        .nav-button { 
-            padding: 10px 20px; 
-            font-size: 16px; 
-            text-decoration: none; 
-            color: white; 
-            background-color: #800080; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            margin-right: 10px; 
-            display: inline-block; 
+        .nav-bar {
+            background-color: #4b0082;
+            overflow: hidden;
+            padding: 10px 0;
+            text-align: center;
         }
-        .nav-button:hover { background-color: #4b0082; }
-        .header { display: flex; align-items: center; margin-bottom: 20px; }
-        .logo { width: 96px; height: 96px; margin-right: 10px; }
-        .logo-text { font-size: 54px; font-weight: bold; color: #ff69b4; }
+        .nav-button {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-button:hover {
+            background-color: #800080;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .logo {
+            width: 100px;
+            vertical-align: middle;
+        }
+        .logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4b0082;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #4b0082;
+        }
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .add-form input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .add-form button {
+            background-color: #ff69b4;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-form button:hover {
+            background-color: #ff1493;
+        }
+        .category-header {
+            font-weight: bold;
+            color: #4b0082;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
         .grocery-item {
             display: flex;
             align-items: center;
-            margin: 10px 0;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
         }
-        .grocery-item input[type="checkbox"] {
-            margin-right: 10px;
+        .grocery-item.selected {
+            background-color: #e6e6fa;
         }
         .grocery-item-name {
+            flex-grow: 1;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .strikethrough {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .move-buttons button {
+            background-color: #4b0082;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        .move-buttons button.hidden {
+            display: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
             cursor: pointer;
         }
-        .grocery-item-name.strikethrough {
-            text-decoration: line-through;
-            color: gray;
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
         }
-        .add-form { display: flex; gap: 10px; margin-bottom: 40px; }
-        .add-form input { padding: 5px; width: 44.8%; }
-        .add-form button { padding: 5px 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .add-form button:hover { background-color: #ff1493; }
-        .move-buttons { display: none; margin-left: 10px; }
-        .move-buttons button { padding: 5px 10px; margin-left: 5px; background-color: #4b0082; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .move-buttons button:hover { background-color: #800080; }
-        .grocery-item.single-selected .move-buttons { display: inline-block; }
-        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; }
-        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .close:hover, .close:focus { color: black; text-decoration: none; }
-        .modal-form { display: flex; flex-direction: column; gap: 10px; }
-        .modal-form label { font-weight: bold; }
-        .modal-form input, .modal-form select { padding: 5px; width: 100%; box-sizing: border-box; }
-        .modal-form button { padding: 10px; background-color: #ff69b4; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .modal-form button:hover { background-color: #ff1493; }
-        #grocery-list { margin-top: 20px; }
-        .category-header { font-weight: bold; font-size: 18px; margin-top: 15px; margin-bottom: 5px; }
-        /* Responsive adjustments for smaller screens */
-        @media (max-width: 600px) {
-            .nav-button { 
-                padding: 8px 16px; 
-                font-size: 14px; 
-                margin-right: 5px; 
-            }
-            .logo { width: 64px; height: 64px; margin-right: 8px; }
-            .logo-text { font-size: 36px; }
-            .add-form input { width: 100%; }
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .modal-form label {
+            font-weight: bold;
+            color: #4b0082;
+        }
+        .modal-form select,
+        .modal-form input[type="text"],
+        .modal-form input[type="tel"],
+        .modal-form input[type="email"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .modal-form button {
+            background-color: #ff69b4;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+        .modal-form button:hover {
+            background-color: #ff1493;
+        }
+        #newCategoryInput {
+            display: none;
+        }
+        #category-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #category-list li {
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -117,6 +230,7 @@
                 </div>
                 <button type="submit">Categorize</button>
             </form>
+            <div id="category-list"></div>
         </div>
     </div>
 
@@ -136,6 +250,10 @@
     </div>
 
     <script>
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
         const API_BASE_URL = 'https://recipe-collector-functions.azurewebsites.net';
 
         async function loadGroceryList() {
@@ -150,7 +268,6 @@
 
                 if (response.ok) {
                     const items = await response.json();
-                    // Group items by category
                     const groupedItems = {};
                     items.forEach(item => {
                         const category = item.category || '';
@@ -160,7 +277,6 @@
                         groupedItems[category].push(item);
                     });
 
-                    // If there are any categorized items, move uncategorized items to "Other"
                     if (Object.keys(groupedItems).length > 1 || (Object.keys(groupedItems).length === 1 && !groupedItems[''])) {
                         if (groupedItems['']) {
                             groupedItems['Other'] = groupedItems[''];
@@ -168,14 +284,12 @@
                         }
                     }
 
-                    // Sort categories (place "Other" at the end)
                     const categories = Object.keys(groupedItems).sort((a, b) => {
                         if (a === 'Other') return 1;
                         if (b === 'Other') return -1;
                         return a.localeCompare(b);
                     });
 
-                    // Render grouped items
                     let html = '';
                     categories.forEach(category => {
                         html += `<div class="category-header">${category || 'Uncategorized'}</div>`;
@@ -183,6 +297,7 @@
                             <div class="grocery-item ${item.isSelected ? 'selected' : ''}" data-id="${item.id}">
                                 <input type="checkbox" class="select-item" onchange="toggleSelection('${item.id}'); updateSelectAllButton();" ${item.isSelected ? 'checked' : ''}>
                                 <span class="grocery-item-name ${item.isGrabbed ? 'strikethrough' : ''}" onclick="toggleGrabbed('${item.id}', ${!item.isGrabbed})">${item.name}</span>
+                                <button onclick="editGroceryItem('${item.id}')" style="background-color: #4b0082; color: white; padding: 5px 10px; margin-left: 5px; border: none; border-radius: 5px; cursor: pointer;">Edit</button>
                                 <div class="move-buttons">
                                     <button onclick="moveItem('${item.id}', 'up')">Move Up</button>
                                     <button onclick="moveItem('${item.id}', 'down')">Move Down</button>
@@ -207,10 +322,9 @@
         }
 
         async function addGroceryItem() {
-            const itemName = document.getElementById('newItemInput').value.trim();
+            const itemName = capitalizeFirstLetter(document.getElementById('newItemInput').value.trim());
             const errorElement = document.getElementById('error');
 
-            // Clear previous message
             errorElement.textContent = '';
             errorElement.style.display = 'none';
 
@@ -224,7 +338,7 @@
                 const response = await fetch(`${API_BASE_URL}/api/addGroceryItem`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: itemName, category: '' }) // Include category field
+                    body: JSON.stringify({ name: itemName, category: '' })
                 });
 
                 if (response.ok) {
@@ -242,41 +356,42 @@
                 errorElement.style.display = 'block';
             }
         }
-        function toggleSelection(itemId) {
-            const itemDiv = document.querySelector(`.grocery-item[data-id="${itemId}"]`);
-            itemDiv.classList.toggle('selected');
-            updateMoveButtonsVisibility();
-        }
 
-        function updateMoveButtonsVisibility() {
-            const selectedItems = document.querySelectorAll('.grocery-item.selected');
-            const allItems = document.querySelectorAll('.grocery-item');
-
-            // Remove single-selected class from all items
-            allItems.forEach(item => {
-                item.classList.remove('single-selected');
-            });
-
-            // If exactly one item is selected, add single-selected class to that item
-            if (selectedItems.length === 1) {
-                selectedItems.forEach(item => {
-                    item.classList.add('single-selected');
-                });
+        async function editGroceryItem(itemId) {
+            const itemSpan = document.querySelector(`.grocery-item[data-id="${itemId}"] .grocery-item-name`);
+            const currentName = itemSpan.textContent;
+            const newName = prompt(`Enter new name for "${currentName}":`, currentName);
+            if (newName && newName.trim() !== '') {
+                const capitalizedNewName = capitalizeFirstLetter(newName.trim());
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: itemId, name: capitalizedNewName })
+                    });
+                    if (response.ok) {
+                        loadGroceryList();
+                    } else {
+                        const errorText = await response.text();
+                        const errorElement = document.getElementById('error');
+                        errorElement.textContent = `Error updating item: ${response.status} - ${errorText}`;
+                        errorElement.style.display = 'block';
+                    }
+                } catch (error) {
+                    const errorElement = document.getElementById('error');
+                    errorElement.textContent = `Error: ${error.message}`;
+                    errorElement.style.display = 'block';
+                }
             }
         }
 
         async function toggleGrabbed(itemId, isGrabbed) {
             const errorElement = document.getElementById('error');
-
-            // Clear previous message
-            errorElement.textContent = '';
-            errorElement.style.display = 'none';
-
             try {
                 const response = await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: itemId, isGrabbed })
+                    body: JSON.stringify({ id: itemId, isGrabbed: isGrabbed })
                 });
 
                 if (response.ok) {
@@ -284,73 +399,37 @@
                 } else {
                     const errorText = await response.text();
                     errorElement.textContent = `Error updating item: ${response.status} - ${errorText}`;
-                    errorElement.style.color = 'red';
                     errorElement.style.display = 'block';
                 }
             } catch (error) {
                 errorElement.textContent = `Error: ${error.message}`;
-                errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
             }
         }
 
-        async function moveItem(itemId, direction) {
+        async function toggleSelection(itemId) {
+            const itemDiv = document.querySelector(`.grocery-item[data-id="${itemId}"]`);
+            const isSelected = itemDiv.classList.contains('selected');
             const errorElement = document.getElementById('error');
 
-            // Clear previous message
-            errorElement.textContent = '';
-            errorElement.style.display = 'none';
-
             try {
-                const response = await fetch(`${API_BASE_URL}/api/reorderGroceryItem`, {
+                const response = await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ itemId, direction })
+                    body: JSON.stringify({ id: itemId, isSelected: !isSelected })
                 });
 
                 if (response.ok) {
                     loadGroceryList();
                 } else {
                     const errorText = await response.text();
-                    errorElement.textContent = `Error moving item: ${response.status} - ${errorText}`;
-                    errorElement.style.color = 'red';
+                    errorElement.textContent = `Error updating selection: ${response.status} - ${errorText}`;
                     errorElement.style.display = 'block';
                 }
             } catch (error) {
                 errorElement.textContent = `Error: ${error.message}`;
-                errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
             }
-        }
-
-        function updateSelectAllButton() {
-            const checkboxes = document.querySelectorAll('.select-item');
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            const selectAllButton = document.getElementById('selectAllButton');
-            if (checkboxes.length === 0) {
-                selectAllButton.textContent = 'Select All';
-                selectAllButton.disabled = true;
-            } else {
-                selectAllButton.disabled = false;
-                selectAllButton.textContent = allChecked ? 'Unselect All' : 'Select All';
-            }
-        }
-
-        function selectAllItems() {
-            const checkboxes = document.querySelectorAll('.select-item');
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = !allChecked;
-                const itemDiv = checkbox.parentElement;
-                if (!allChecked) {
-                    itemDiv.classList.add('selected');
-                } else {
-                    itemDiv.classList.remove('selected');
-                }
-            });
-            updateSelectAllButton();
-            updateMoveButtonsVisibility();
         }
 
         async function deleteSelectedItems() {
@@ -358,58 +437,129 @@
             const itemIds = Array.from(selectedItems).map(item => item.parentElement.getAttribute('data-id'));
             const errorElement = document.getElementById('error');
 
-            // Clear previous message
-            errorElement.textContent = '';
-            errorElement.style.display = 'none';
-
             if (itemIds.length === 0) {
                 errorElement.textContent = 'Please select at least one item to delete.';
-                errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
                 return;
             }
 
             try {
-                const response = await fetch(`${API_BASE_URL}/api/deleteGroceryItems`, {
-                    method: 'DELETE',
+                for (const itemId of itemIds) {
+                    const response = await fetch(`${API_BASE_URL}/api/deleteGroceryItem`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: itemId })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        errorElement.textContent = `Error deleting item: ${response.status} - ${errorText}`;
+                        errorElement.style.display = 'block';
+                        return;
+                    }
+                }
+                loadGroceryList();
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        async function moveItem(itemId, direction) {
+            const errorElement = document.getElementById('error');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/moveGroceryItem`, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ itemIds })
+                    body: JSON.stringify({ id: itemId, direction })
                 });
 
                 if (response.ok) {
                     loadGroceryList();
                 } else {
                     const errorText = await response.text();
-                    errorElement.textContent = `Error deleting items: ${response.status} - ${errorText}`;
-                    errorElement.style.color = 'red';
+                    errorElement.textContent = `Error moving item: ${response.status} - ${errorText}`;
                     errorElement.style.display = 'block';
                 }
             } catch (error) {
                 errorElement.textContent = `Error: ${error.message}`;
-                errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
             }
         }
-                // Categorize Modal Functions
-                function openCategorizeModal() {
+
+        function updateMoveButtonsVisibility() {
+            const items = document.querySelectorAll('.grocery-item');
+            items.forEach((item, index) => {
+                const moveUpButton = item.querySelector('button[onclick*="up"]');
+                const moveDownButton = item.querySelector('button[onclick*="down"]');
+                moveUpButton.classList.toggle('hidden', index === 0);
+                moveDownButton.classList.toggle('hidden', index === items.length - 1);
+            });
+        }
+
+        function updateSelectAllButton() {
+            const selectAllButton = document.getElementById('selectAllButton');
+            const allCheckboxes = document.querySelectorAll('.select-item');
+            const checkedCheckboxes = document.querySelectorAll('.select-item:checked');
+            if (allCheckboxes.length === 0) {
+                selectAllButton.textContent = 'Select All';
+                selectAllButton.disabled = true;
+            } else if (allCheckboxes.length === checkedCheckboxes.length) {
+                selectAllButton.textContent = 'Deselect All';
+                selectAllButton.disabled = false;
+            } else {
+                selectAllButton.textContent = 'Select All';
+                selectAllButton.disabled = false;
+            }
+        }
+
+        async function selectAllItems() {
+            const selectAllButton = document.getElementById('selectAllButton');
+            const allCheckboxes = document.querySelectorAll('.select-item');
+            const allSelected = allCheckboxes.length === document.querySelectorAll('.select-item:checked').length;
+            const errorElement = document.getElementById('error');
+
+            try {
+                for (const checkbox of allCheckboxes) {
+                    const itemId = checkbox.parentElement.getAttribute('data-id');
+                    const response = await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: itemId, isSelected: !allSelected })
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        errorElement.textContent = `Error updating selection: ${response.status} - ${errorText}`;
+                        errorElement.style.display = 'block';
+                        return;
+                    }
+                }
+                loadGroceryList();
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
+            }
+        }
+
+        function openCategorizeModal() {
             const selectedItems = document.querySelectorAll('.select-item:checked');
             if (selectedItems.length === 0) {
                 const errorElement = document.getElementById('error');
                 errorElement.textContent = 'Please select at least one item to categorize.';
-                errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
                 return;
             }
             document.getElementById('categorizeModal').style.display = 'block';
             updateCategoryDropdown();
-            toggleCategoryInput(); // Ensure the input field visibility is set correctly
+            toggleCategoryInput();
         }
 
         function closeCategorizeModal() {
             document.getElementById('categorizeModal').style.display = 'none';
-            document.getElementById('categorySelect').value = 'new';
-            document.getElementById('newCategoryName').value = '';
             document.getElementById('newCategoryInput').style.display = 'none';
+            document.getElementById('newCategoryName').value = '';
+            document.getElementById('error').style.display = 'none';
         }
 
         function toggleCategoryInput() {
@@ -418,40 +568,15 @@
             newCategoryInput.style.display = categorySelect.value === 'new' ? 'block' : 'none';
         }
 
-        async function updateCategoryDropdown() {
-            const categorySelect = document.getElementById('categorySelect');
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/getGroceryList`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                if (response.ok) {
-                    const items = await response.json();
-                    const categories = [...new Set(items.map(item => item.category).filter(cat => cat && cat !== 'Other'))];
-                    categorySelect.innerHTML = '<option value="new">New Category</option>';
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category;
-                        option.textContent = category;
-                        categorySelect.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Error updating category dropdown:', error);
-            }
-        }
-
         document.getElementById('categorizeForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const selectedItems = document.querySelectorAll('.select-item:checked');
             const itemIds = Array.from(selectedItems).map(item => item.parentElement.getAttribute('data-id'));
             const categorySelect = document.getElementById('categorySelect').value;
-            let category = categorySelect === 'new' ? document.getElementById('newCategoryName').value.trim() : categorySelect;
+            let category = categorySelect === 'new' ? capitalizeFirstLetter(document.getElementById('newCategoryName').value.trim()) : categorySelect;
             const errorElement = document.getElementById('error');
 
-            // Clear previous message
             errorElement.textContent = '';
             errorElement.style.display = 'none';
 
@@ -495,33 +620,9 @@
             }
         });
 
-        async function copyGroceryList() {
-            const errorElement = document.getElementById('error');
-
-            try {
-                const listText = await getGroceryListText();
-                await navigator.clipboard.writeText(listText);
-                alert('Grocery list copied to clipboard!');
-            } catch (error) {
-                errorElement.textContent = `Error copying list: ${error.message}`;
-                errorElement.style.color = 'red';
-                errorElement.style.display = 'block';
-            }
-        }
-
-        // Send List Modal Functions
-        function openSendListModal() {
-            document.getElementById('sendListModal').style.display = 'block';
-        }
-
-        function closeSendListModal() {
-            document.getElementById('sendListModal').style.display = 'none';
-            document.getElementById('phoneNumber').value = '';
-            document.getElementById('emailAddress').value = '';
-        }
-
-        // Format the grocery list as a text string (with categories)
-        async function getGroceryListText() {
+        async function updateCategoryDropdown() {
+            const categorySelect = document.getElementById('categorySelect');
+            const categoryListDiv = document.getElementById('category-list');
             try {
                 const response = await fetch(`${API_BASE_URL}/api/getGroceryList`, {
                     method: 'GET',
@@ -530,52 +631,65 @@
 
                 if (response.ok) {
                     const items = await response.json();
-                    if (items.length === 0) {
-                        return "Your grocery list is empty.";
-                    }
-
-                    // Group items by category
-                    const groupedItems = {};
-                    items.forEach(item => {
-                        const category = item.category || '';
-                        if (!groupedItems[category]) {
-                            groupedItems[category] = [];
-                        }
-                        groupedItems[category].push(item);
-                    });
-
-                    // If there are any categorized items, move uncategorized items to "Other"
-                    if (Object.keys(groupedItems).length > 1 || (Object.keys(groupedItems).length === 1 && !groupedItems[''])) {
-                        if (groupedItems['']) {
-                            groupedItems['Other'] = groupedItems[''];
-                            delete groupedItems[''];
-                        }
-                    }
-
-                    // Sort categories (place "Other" at the end)
-                    const categories = Object.keys(groupedItems).sort((a, b) => {
-                        if (a === 'Other') return 1;
-                        if (b === 'Other') return -1;
-                        return a.localeCompare(b);
-                    });
-
-                    let listText = "Grocery List:\n";
+                    const categories = [...new Set(items.map(item => item.category).filter(cat => cat && cat !== 'Other'))];
+                    categorySelect.innerHTML = '<option value="new">New Category</option>';
                     categories.forEach(category => {
-                        listText += `\n${category || 'Uncategorized'}\n`;
-                        groupedItems[category].forEach(item => {
-                            listText += `- ${item.name}\n`;
-                        });
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        categorySelect.appendChild(option);
                     });
-                    return listText;
-                } else {
-                    throw new Error('Failed to fetch grocery list');
+                    categoryListDiv.innerHTML = '<p>Existing Categories:</p><ul>' + 
+                        categories.map(category => `<li>${category} <button onclick="editCategory('${category}')" style="background-color: #4b0082; color: white; padding: 5px 10px; margin-left: 5px; border: none; border-radius: 5px; cursor: pointer;">Edit</button></li>`).join('') + 
+                        '</ul>';
                 }
             } catch (error) {
-                throw error;
+                console.error('Error updating category dropdown:', error);
             }
         }
 
-        // Handle sending the grocery list
+        async function editCategory(oldCategory) {
+            const newCategory = prompt(`Enter new name for category "${oldCategory}":`, oldCategory);
+            if (newCategory && newCategory.trim() !== '') {
+                const capitalizedNewCategory = capitalizeFirstLetter(newName.trim());
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/getGroceryList`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    if (response.ok) {
+                        const items = await response.json();
+                        const itemsToUpdate = items.filter(item => item.category === oldCategory);
+                        for (const item of itemsToUpdate) {
+                            await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: item.id, category: capitalizedNewCategory })
+                            });
+                        }
+                        loadGroceryList();
+                        updateCategoryDropdown();
+                    }
+                } catch (error) {
+                    console.error('Error editing category:', error);
+                    const errorElement = document.getElementById('error');
+                    errorElement.textContent = `Error: ${error.message}`;
+                    errorElement.style.display = 'block';
+                }
+            }
+        }
+
+        function openSendListModal() {
+            document.getElementById('sendListModal').style.display = 'block';
+        }
+
+        function closeSendListModal() {
+            document.getElementById('sendListModal').style.display = 'none';
+            document.getElementById('phoneNumber').value = '';
+            document.getElementById('emailAddress').value = '';
+            document.getElementById('error').style.display = 'none';
+        }
+
         document.getElementById('sendListForm').addEventListener('submit', async (event) => {
             event.preventDefault();
 
@@ -583,73 +697,36 @@
             const emailAddress = document.getElementById('emailAddress').value.trim();
             const errorElement = document.getElementById('error');
 
-            // Clear previous message
             errorElement.textContent = '';
             errorElement.style.display = 'none';
 
-            // Validate input: at least one field must be provided
             if (!phoneNumber && !emailAddress) {
-                errorElement.textContent = 'Please provide at least a phone number or email address.';
-                errorElement.style.color = 'red';
-                errorElement.style.display = 'block';
-                return;
-            }
-
-            // Validate phone number format if provided
-            if (phoneNumber && !/^\+\d{10,15}$/.test(phoneNumber)) {
-                errorElement.textContent = 'Please enter a valid phone number (e.g., +1234567890).';
-                errorElement.style.color = 'red';
-                errorElement.style.display = 'block';
-                return;
-            }
-
-            // Validate email format if provided
-            if (emailAddress && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAddress)) {
-                errorElement.textContent = 'Please enter a valid email address.';
+                errorElement.textContent = 'Please provide at least one contact method (phone number or email address).';
                 errorElement.style.color = 'red';
                 errorElement.style.display = 'block';
                 return;
             }
 
             try {
-                const listText = await getGroceryListText();
+                const response = await fetch(`${API_BASE_URL}/api/sendGroceryList`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber, emailAddress })
+                });
 
-                // Send via SMS if phone number is provided
-                if (phoneNumber) {
-                    const smsResponse = await fetch(`${API_BASE_URL}/api/sendGroceryListSMS`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ phoneNumber, message: listText })
-                    });
-
-                    if (!smsResponse.ok) {
-                        const errorText = await smsResponse.text();
-                        errorElement.textContent = `Error sending SMS: ${smsResponse.status} - ${errorText}`;
-                        errorElement.style.color = 'red';
-                        errorElement.style.display = 'block';
-                        return;
-                    }
+                if (response.ok) {
+                    errorElement.textContent = 'Grocery list sent successfully!';
+                    errorElement.style.color = 'green';
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        closeSendListModal();
+                    }, 2000);
+                } else {
+                    const errorText = await response.text();
+                    errorElement.textContent = `Error sending list: ${response.status} - ${errorText}`;
+                    errorElement.style.color = 'red';
+                    errorElement.style.display = 'block';
                 }
-
-                // Send via email if email address is provided
-                if (emailAddress) {
-                    const emailResponse = await fetch(`${API_BASE_URL}/api/sendGroceryListEmail`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ emailAddress, subject: "Your Cat's Kitchen Grocery List", message: listText })
-                    });
-
-                    if (!emailResponse.ok) {
-                        const errorText = await emailResponse.text();
-                        errorElement.textContent = `Error sending email: ${emailResponse.status} - ${errorText}`;
-                        errorElement.style.color = 'red';
-                        errorElement.style.display = 'block';
-                        return;
-                    }
-                }
-
-                // Close the modal on success
-                closeSendListModal();
             } catch (error) {
                 errorElement.textContent = `Error: ${error.message}`;
                 errorElement.style.color = 'red';
@@ -657,21 +734,49 @@
             }
         });
 
-        window.onclick = function(event) {
-            const categorizeModal = document.getElementById('categorizeModal');
-            const sendListModal = document.getElementById('sendListModal');
-            if (event.target === categorizeModal) {
-                closeCategorizeModal();
+        async function copyGroceryList() {
+            const errorElement = document.getElementById('error');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/getGroceryList`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const items = await response.json();
+                    const groupedItems = {};
+                    items.forEach(item => {
+                        const category = item.category || 'Uncategorized';
+                        if (!groupedItems[category]) {
+                            groupedItems[category] = [];
+                        }
+                        groupedItems[category].push(item.name);
+                    });
+
+                    let textToCopy = '';
+                    for (const [category, itemList] of Object.entries(groupedItems)) {
+                        textToCopy += `${category}:\n${itemList.join('\n')}\n\n`;
+                    }
+
+                    await navigator.clipboard.writeText(textToCopy.trim());
+                    errorElement.textContent = 'Grocery list copied to clipboard!';
+                    errorElement.style.color = 'green';
+                    errorElement.style.display = 'block';
+                    setTimeout(() => {
+                        errorElement.style.display = 'none';
+                    }, 2000);
+                } else {
+                    const errorText = await response.text();
+                    errorElement.textContent = `Error copying list: ${response.status} - ${errorText}`;
+                    errorElement.style.display = 'block';
+                }
+            } catch (error) {
+                errorElement.textContent = `Error: ${error.message}`;
+                errorElement.style.display = 'block';
             }
-            if (event.target === sendListModal) {
-                closeSendListModal();
-            }
-        };
+        }
 
         window.onload = loadGroceryList;
     </script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9292528a5c90334d',t:'MTc0MzQ1MDA2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9293b5b7b8c732ed',t:'MTc0MzQ2NDYxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'929510c00ba8bff2',t:'MTc0MzQ3ODgzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
