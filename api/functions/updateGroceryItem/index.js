@@ -28,24 +28,20 @@ module.exports = async function (context, req) {
     // Parse the body
     let body;
     try {
-        // First, try using req.buffer() to get the raw body as a Buffer
-        if (req.buffer) {
-            const rawBody = req.buffer.toString('utf8');
-            context.log('Raw Body from req.buffer:', rawBody);
-            body = JSON.parse(rawBody);
-        }
-        // Fallback to req.body if it's already an object
-        else if (req.body && typeof req.body === 'object') {
-            body = req.body;
-        }
-        // Fallback to req.rawBody if available
-        else if (req.rawBody) {
-            body = JSON.parse(req.rawBody);
-        }
-        // If none are available, throw an error
-        else {
+        // First, try to read the raw body as a stream
+        const rawBody = await new Promise((resolve, reject) => {
+            let bodyChunks = [];
+            req.on('data', chunk => bodyChunks.push(chunk));
+            req.on('end', () => resolve(Buffer.concat(bodyChunks).toString('utf8')));
+            req.on('error', reject);
+        });
+        context.log('Raw Body from Stream:', rawBody);
+
+        if (!rawBody) {
             throw new Error("Request body is empty or not provided.");
         }
+
+        body = JSON.parse(rawBody);
     } catch (error) {
         context.log.error('Failed to parse request body:', error.message);
         context.res = {
