@@ -358,32 +358,34 @@
         }
 
         async function editGroceryItem(itemId) {
-            const itemSpan = document.querySelector(`.grocery-item[data-id="${itemId}"] .grocery-item-name`);
-            const currentName = itemSpan.textContent;
-            const newName = prompt(`Enter new name for "${currentName}":`, currentName);
-            if (newName && newName.trim() !== '') {
-                const capitalizedNewName = capitalizeFirstLetter(newName.trim());
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: itemId, name: capitalizedNewName })
-                    });
-                    if (response.ok) {
-                        loadGroceryList();
-                    } else {
-                        const errorText = await response.text();
-                        const errorElement = document.getElementById('error');
-                        errorElement.textContent = `Error updating item: ${response.status} - ${errorText}`;
-                        errorElement.style.display = 'block';
-                    }
-                } catch (error) {
-                    const errorElement = document.getElementById('error');
-                    errorElement.textContent = `Error: ${error.message}`;
-                    errorElement.style.display = 'block';
-                }
+    const itemDiv = document.querySelector(`.grocery-item[data-id="${itemId}"]`);
+    const itemSpan = itemDiv.querySelector('.grocery-item-name');
+    const currentName = itemSpan.textContent;
+    const isGrabbed = itemSpan.classList.contains('strikethrough'); // Get the current isGrabbed status
+    const newName = prompt(`Enter new name for "${currentName}":`, currentName);
+    if (newName && newName.trim() !== '') {
+        const capitalizedNewName = capitalizeFirstLetter(newName.trim());
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/updateGroceryItem`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: itemId, name: capitalizedNewName, isGrabbed: isGrabbed })
+            });
+            if (response.ok) {
+                loadGroceryList();
+            } else {
+                const errorText = await response.text();
+                const errorElement = document.getElementById('error');
+                errorElement.textContent = `Error updating item: ${response.status} - ${errorText}`;
+                errorElement.style.display = 'block';
             }
+        } catch (error) {
+            const errorElement = document.getElementById('error');
+            errorElement.textContent = `Error: ${error.message}`;
+            errorElement.style.display = 'block';
         }
+    }
+}
 
         async function toggleGrabbed(itemId, isGrabbed) {
             const errorElement = document.getElementById('error');
