@@ -3,6 +3,22 @@ const { CosmosClient } = require("@azure/cosmos");
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
+    // Define CORS headers
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+    };
+
+    // Handle CORS preflight (OPTIONS) request
+    if (req.method === "OPTIONS") {
+        context.res = {
+            status: 204,
+            headers: corsHeaders
+        };
+        return;
+    }
+
     const endpoint = process.env.COSMOSDB_ENDPOINT;
     const key = process.env.COSMOSDB_KEY;
     context.log(`COSMOSDB_ENDPOINT: ${endpoint}`);
@@ -12,7 +28,7 @@ module.exports = async function (context, req) {
         context.log.error('Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY');
         context.res = {
             status: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...corsHeaders },
             body: JSON.stringify({ error: "Server configuration error: Missing COSMOSDB_ENDPOINT or COSMOSDB_KEY" })
         };
         return;
@@ -26,7 +42,7 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...corsHeaders },
             body: JSON.stringify({ error: `Error creating CosmosClient: ${error.message}` })
         };
         return;
@@ -45,7 +61,7 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...corsHeaders },
             body: JSON.stringify({ error: `Error connecting to database/container: ${error.message}` })
         };
         return;
@@ -59,7 +75,7 @@ module.exports = async function (context, req) {
         context.log(`Successfully fetched ${resources.length} grocery items`);
         context.res = {
             status: 200,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...corsHeaders },
             body: resources
         };
     } catch (error) {
@@ -67,7 +83,7 @@ module.exports = async function (context, req) {
         context.log.error(`Error stack: ${error.stack}`);
         context.res = {
             status: 500,
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...corsHeaders },
             body: JSON.stringify({ error: `Error fetching grocery items: ${error.message}` })
         };
     }

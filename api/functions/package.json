@@ -1,0 +1,11 @@
+{
+  "name": "recipe-collector-api",
+  "version": "1.0.0",
+  "dependencies": {
+    "@azure/cosmos": "^4.0.0",
+    "@azure/functions": "4.0.0",
+    "@sendgrid/mail": "^8.1.4",
+    "nodemailer": "^6.10.0",
+    "twilio": "^5.5.1"
+  }
+}
