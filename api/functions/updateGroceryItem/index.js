@@ -19,6 +19,10 @@ module.exports = async function (context, req) {
         return;
     }
 
+    // Log the raw request body and headers for debugging
+    context.log('Request Headers:', req.headers);
+    context.log('Raw Request Body:', req.body);
+
     const endpoint = process.env.COSMOSDB_ENDPOINT;
     const key = process.env.COSMOSDB_KEY;
     context.log(`COSMOSDB_ENDPOINT: ${endpoint}`);
